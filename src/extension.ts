@@ -89,7 +89,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 			}
 
 			const modulesPath = modules.map(m => pathToPosix(m.uri.path));
-			const commandString = pythonExecutionPath.concat(["", "-m", "hamilton.experimental.vscode", ...modulesPath].join(" "));
+			const commandString = pythonExecutionPath.concat(["", "-m", "hamilton.vscode", ...modulesPath].join(" "));
 
 			const terminal = vscode.window.createTerminal({
 				"cwd": vscode.workspace.workspaceFolders[0].uri,

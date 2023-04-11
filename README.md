@@ -15,14 +15,14 @@
   - Caches Python module selection to workspace for future command call
 - Workspace:
   - Automatically uses Python interpreter selected for the workspace
-- Added `hamilton.experimental.vscode` script to `Hamilton` to build DAG
+- Added `hamilton.vscode` script to `Hamilton` to build DAG
 
 
 ## Installation
 - Download the `hamilton-0.0.1.vsix`
 - Go to the terminal and move to the `.vsix` file location
 - Run the command `code --install-extension hamilton-0.0.1.vsix`
-- Copy the file `vscode.py` to the `/hamilton/experimental/` folder of your Python environment
+- Copy the file `vscode.py` to the `/hamilton/` folder of your Python environment
 [More details](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
 
 ## TODO
