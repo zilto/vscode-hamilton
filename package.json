@@ -1,7 +1,9 @@
 {
   "name": "hamilton",
   "displayName": "hamilton",
-  "description": "",
+  "description": "VSCode extension for the Hamilton Python framework",
+  "publisher": "zilto",
+  "repository": "https://github.com/zilto/vscode-hamilton",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.77.0"
@@ -9,41 +11,125 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
-  "main": "./dist/extension.js",
+  "activationEvents": [
+  ],
+  "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "hamilton",
+      "properties": {
+        "visualization": {
+
+        }
+      }
+    },
     "commands": [
       {
-        "command": "hamilton.helloWorld",
-        "title": "Hello World"
+        "category": "Hamilton",
+        "command": "hamilton.buildDAG",
+        "title": "Build DAG",
+        "icon": "$(play)"
+      },
+      {
+        "category": "Hamilton",
+        "command": "hamilton.selectModules",
+        "title": "Select Modules",
+        "icon": "$(checklist)"
+      },
+      {
+        "category": "Hamilton",
+        "command": "hamilton.sidebar.refresh",
+        "title": "Refresh Modules",
+        "icon": "$(extensions-refresh)"
+      },
+      {
+        "category": "Hamilton",
+        "command": "hamilton.selectItem",
+        "title": "selectItem",
+        "icon": "$(check)"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "hamilton",
+          "title": "Hamilton",
+          "icon": "$(circuit-board)"
+        }
+      ]
+    },
+    "views": {
+      "hamilton": [
+        {
+          "id": "hamilton.sidebar.modules",
+          "name": "Modules",
+          "when": "true"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "hamilton.buildDAG",
+          "when": "view == hamilton.sidebar.modules",
+          "group": "navigation@1"
+        },
+        {
+          "command": "hamilton.selectModules",
+          "when": "view == hamilton.sidebar.modules",
+          "group": "navigation@2"
+        },
+        {
+          "command": "hamilton.sidebar.refresh",
+          "when": "view == hamilton.sidebar.modules",
+          "group": "navigation@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "hamilton.selectItem",
+          "when": "view == hamilton.sidebar.modules && viewItem == pythonModule",
+          "group": "inline"
+        }
+      ]
+    }
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
-    "compile": "webpack",
-    "watch": "webpack --watch",
-    "package": "webpack --mode production --devtool hidden-source-map",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "compile": "node ./esbuild.js",
+    "package": "NODE_ENV=production node ./esbuild.js",
+    "watch": "node ./esbuild.js --watch"
   },
   "devDependencies": {
-    "@types/vscode": "^1.77.0",
     "@types/glob": "^8.1.0",
+    "@types/mkdirp": "^2.0.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
+    "@types/rimraf": "^4.0.5",
+    "@types/vscode": "^1.77.0",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.53.0",
+    "@vscode/test-electron": "^2.2.3",
+    "esbuild": "^0.16.17",
     "eslint": "^8.34.0",
     "glob": "^8.1.0",
+    "mkdirp": "^2.1.6",
     "mocha": "^10.2.0",
-    "typescript": "^4.9.5",
+    "rimraf": "^4.4.1",
     "ts-loader": "^9.4.2",
+    "typescript": "^4.9.5",
     "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.1",
-    "@vscode/test-electron": "^2.2.3"
-  }
+    "webpack-cli": "^5.0.1"
+  },
+  "dependencies": {
+    "@hediet/std": "0.6.0",
+    "execa": "5.1.1",
+    "fs-extra": "11.1.0",
+    "minimist": "^1.2.6",
+    "tree-kill": "1.2.2",
+    "rimraf": "^4.4.1",
+    "mkdirp": "^2.1.6"
+  },
+  "extensionDependencies": [
+    "ms-python.python"
+  ]
 }
