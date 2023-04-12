@@ -27,13 +27,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 	// register module tree view
 	const moduleProvider = new ModuleProvider(pythonFileWatcher);
 	vscode.window.registerTreeDataProvider("hamilton.sidebar.pythonFiles", moduleProvider);
-	vscode.commands.registerCommand("hamilton.registerModule", module => {moduleCache.unselect(module.uri); vscode.commands.executeCommand("hamilton.sidebar.refresh")});
+	vscode.commands.registerCommand("hamilton.registerModule", module => {moduleCache.unselect(module.uri); vscode.commands.executeCommand("hamilton.sidebar.refresh"); });
 	
 	// register module and symbol tree view
 	const moduleAndSymbolProvider = new ModuleAndSymbolProvider(moduleCache, pythonFileWatcher);
 	vscode.window.registerTreeDataProvider("hamilton.sidebar.modules", moduleAndSymbolProvider);
 	vscode.commands.registerCommand("hamilton.sidebar.refresh", async () => moduleAndSymbolProvider.refresh());
-	vscode.commands.registerCommand("hamilton.unregisterModule", module => {moduleCache.remove(module.uri); vscode.commands.executeCommand("hamilton.sidebar.refresh")});
+	vscode.commands.registerCommand("hamilton.unregisterModule", module => {moduleCache.remove(module.uri); vscode.commands.executeCommand("hamilton.sidebar.refresh"); });
 
 	
 	// register selectModules command

@@ -1,5 +1,7 @@
 # Hamilton - VSCode extension (unofficial)
 
+![](./resources/demo.gif)
+
 ## Features
 - Sidebar tree view UI:
   - Nested Python modules => Python functions (ignore names with underscore prefix)
