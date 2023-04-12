@@ -7,31 +7,62 @@ export interface ModuleTreeItem extends ModuleItem {
 	label: string,
 	uri: vscode.Uri,
 	picked: boolean,
-	type: "pythonModule" | "moduleFunc",
+	type: "pythonModule" | "moduleFunc" | "pythonFile",
 	collapsibleState: vscode.TreeItemCollapsibleState
 	symbol?: any //vscode.SymbolInformation
 }
-
-
-export const pythonModules = async (): Promise<vscode.Uri[]> => {
-	return vscode.workspace.findFiles("**/*.py");
-};
 
 
 export class ModuleProvider implements vscode.TreeDataProvider<ModuleTreeItem> {
 	private _onDidChangeTreeData: vscode.EventEmitter<ModuleTreeItem | undefined | null | void> = new vscode.EventEmitter<ModuleTreeItem | undefined | null | void>();
 	readonly onDidChangeTreeData: vscode.Event<ModuleTreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
-	constructor (private moduleCache: ModuleCache) {
-		// pythonFileWatcher will refresh TreeView on python file change
-		const pythonFileWatcher = vscode.workspace.createFileSystemWatcher("**/*.py");
-		pythonFileWatcher.onDidChange(() => this.refresh());
+	constructor (private fileWatcher: vscode.FileSystemWatcher) {
+		this.fileWatcher.onDidChange(() => this.refresh());
 	}
 
 	public refresh(): void {
 		this._onDidChangeTreeData.fire();
 	}
 
+	async getChildren(element?: ModuleTreeItem): Promise<ModuleTreeItem[]> {
+		const pythonFiles = await vscode.workspace.findFiles("**/*.py");
+		return pythonFiles.map(uri => ({
+			label: uri.path,
+			uri: uri,
+			picked: false,
+			type: "pythonFile",
+			collapsibleState: vscode.TreeItemCollapsibleState.None
+		}));
+	}
+
+	getTreeItem(element: ModuleTreeItem): vscode.TreeItem {
+		// create a TreeItem from an Entry object; handle display decoration of TreeItem
+		const treeItem = new vscode.TreeItem(element.uri, element.collapsibleState);
+		treeItem.contextValue = element.type;
+		treeItem.iconPath = new vscode.ThemeIcon("file");
+		treeItem.command = {
+			command: "vscode.open",
+			title: "Go to module",
+			arguments: [element.uri]
+		};
+
+		return treeItem;
+	}
+}
+
+
+export class ModuleAndSymbolProvider implements vscode.TreeDataProvider<ModuleTreeItem> {
+	private _onDidChangeTreeData: vscode.EventEmitter<ModuleTreeItem | undefined | null | void> = new vscode.EventEmitter<ModuleTreeItem | undefined | null | void>();
+	readonly onDidChangeTreeData: vscode.Event<ModuleTreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
+
+	constructor (private moduleCache: ModuleCache, private fileWatcher: vscode.FileSystemWatcher) {
+		this.fileWatcher.onDidChange(() => this.refresh());
+	}
+
+	public refresh(): void {
+		this._onDidChangeTreeData.fire();
+	}
 
 	async getChildren(element?: ModuleTreeItem): Promise<ModuleTreeItem[]> {
 		// initially called without argument, then called recursively on items where collapsibleState !== None
@@ -43,7 +74,7 @@ export class ModuleProvider implements vscode.TreeDataProvider<ModuleTreeItem> {
 				uri: m.uri,
 				picked: m.picked,
 				type: "pythonModule",
-				collapsibleState: vscode.TreeItemCollapsibleState.Collapsed
+				collapsibleState: vscode.TreeItemCollapsibleState.Expanded
 			}));
 		}
 
@@ -55,7 +86,7 @@ export class ModuleProvider implements vscode.TreeDataProvider<ModuleTreeItem> {
 			}
 
 			// filter symbols to Functions, with names not starting with "_" (private functions in Python)
-			const filteredSymbols = symbols.filter(s => s.kind === vscode.SymbolKind.Function && !s.name.startsWith("_"));
+			const filteredSymbols = symbols.filter(s => s.kind === vscode.SymbolKind.Function).filter(s => !s.name.startsWith("_"));
 			return filteredSymbols.map(s => ({
 				label: s.name,
 				picked: true,

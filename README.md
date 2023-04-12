@@ -25,6 +25,9 @@
 - Copy the file `vscode.py` to the `/hamilton/` folder of your Python environment
 [More details](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
 
+## Known bugs
+- When reloading / reopening a workspace, modules need to be unregistered then registered again to display properly. Apparently, it is due to the command `vscode.executeDocumentSymbolProvider` in `moduleProvider.ts` trying to access a `DocumentSymbolProvider` at startup before it becomes available.
+
 ## TODO
 - Implement vscode.TaskProvider or shell child processes to call Hamilton and handle output
 - Pass Hamilton execution and visualization configuration  from VSCode

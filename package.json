@@ -12,6 +12,7 @@
     "Other"
   ],
   "activationEvents": [
+    "onStartup:5000"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -44,9 +45,15 @@
       },
       {
         "category": "Hamilton",
-        "command": "hamilton.selectItem",
-        "title": "selectItem",
+        "command": "hamilton.registerModule",
+        "title": "Register Module",
         "icon": "$(check)"
+      },
+      {
+        "category": "Hamilton",
+        "command": "hamilton.unregisterModule",
+        "title": "Unregister Module",
+        "icon": "$(chrome-close)"
       }
     ],
     "viewsContainers": {
@@ -63,6 +70,11 @@
         {
           "id": "hamilton.sidebar.modules",
           "name": "Modules",
+          "when": "true"
+        },
+        {
+          "id": "hamilton.sidebar.pythonFiles",
+          "name": "Python files",
           "when": "true"
         }
       ]
@@ -87,7 +99,12 @@
       ],
       "view/item/context": [
         {
-          "command": "hamilton.selectItem",
+          "command": "hamilton.registerModule",
+          "when": "view == hamilton.sidebar.pythonFiles && viewItem == pythonFile",
+          "group": "inline"
+        },
+        {
+          "command": "hamilton.unregisterModule",
           "when": "view == hamilton.sidebar.modules && viewItem == pythonModule",
           "group": "inline"
         }

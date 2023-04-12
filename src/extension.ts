@@ -1,12 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { SidebarProvider } from "./sidebarProvider";
-import { ModuleProvider, pythonModules } from './moduleProvider';
+import { ModuleProvider, ModuleAndSymbolProvider } from './moduleProvider';
 import { ModuleCache, ModuleItem, setDifference } from './cache';
 import { getPythonExecutionPath } from './python';
-
-
-const CACHE_KEY = "moduleCache";
 
 
 export function pathToPosix(anyPath: string): string {
@@ -24,25 +20,23 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 	}
 	
 	// initialize selectedModules state variable
-	const moduleCache: ModuleCache = new ModuleCache(context, CACHE_KEY);
-	for (let module of await pythonModules()) {
-		moduleCache.unselect(module);
-	};
-
-	// register sidebar
-	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider("hamilton.sidebar", new SidebarProvider(context.extensionUri))
-	);
+	const moduleCache: ModuleCache = new ModuleCache(context, "moduleCache");
+	// initialize Python file watcher to update tree view
+	const pythonFileWatcher = vscode.workspace.createFileSystemWatcher("**/*.py");
 
 	// register module tree view
-	const moduleProvider = new ModuleProvider(moduleCache);
-	vscode.window.registerTreeDataProvider("hamilton.sidebar.modules", moduleProvider);
-	vscode.commands.registerCommand("hamilton.sidebar.refresh", async () => moduleProvider.refresh());
+	const moduleProvider = new ModuleProvider(pythonFileWatcher);
+	vscode.window.registerTreeDataProvider("hamilton.sidebar.pythonFiles", moduleProvider);
+	vscode.commands.registerCommand("hamilton.registerModule", module => {moduleCache.unselect(module.uri); vscode.commands.executeCommand("hamilton.sidebar.refresh")});
+	
+	// register module and symbol tree view
+	const moduleAndSymbolProvider = new ModuleAndSymbolProvider(moduleCache, pythonFileWatcher);
+	vscode.window.registerTreeDataProvider("hamilton.sidebar.modules", moduleAndSymbolProvider);
+	vscode.commands.registerCommand("hamilton.sidebar.refresh", async () => moduleAndSymbolProvider.refresh());
+	vscode.commands.registerCommand("hamilton.unregisterModule", module => {moduleCache.remove(module.uri); vscode.commands.executeCommand("hamilton.sidebar.refresh")});
 
-	context.subscriptions.push(
-		vscode.commands.registerCommand("hamilton.selectItem", module => moduleCache.select(module.uri))
-	);
-
+	
+	// register selectModules command
 	context.subscriptions.push(
 		vscode.commands.registerCommand("hamilton.selectModules", async () => {
 			// find .py files in workspace
@@ -77,18 +71,19 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 		})
 	);
 
+	// register buildDAG command
 	context.subscriptions.push(
 		vscode.commands.registerCommand("hamilton.buildDAG", async () => {
 			if (!vscode.workspace.workspaceFolders){
 				return vscode.window.showInformationMessage("No workspace folder selected");
 			}
 
-			const modules = moduleCache.values();
-			if (!modules){
-				return vscode.window.showWarningMessage("Hamilton: No module selected.");
+			const { selected } = moduleCache.partitionSelection();
+			if (selected.length === 0){
+				vscode.commands.executeCommand("hamilton.selectModules");
 			}
 
-			const modulesPath = modules.map(m => pathToPosix(m.uri.path));
+			const modulesPath = selected.map(m => pathToPosix(m.uri.path));
 			const commandString = pythonExecutionPath.concat(["", "-m", "hamilton.vscode", ...modulesPath].join(" "));
 
 			const terminal = vscode.window.createTerminal({
