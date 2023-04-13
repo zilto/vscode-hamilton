@@ -2,7 +2,7 @@
   "name": "hamilton",
   "displayName": "hamilton",
   "description": "VSCode extension for the Hamilton Python framework",
-  "publisher": "zilto",
+  "publisher": "ThierryJean",
   "repository": "https://github.com/zilto/vscode-hamilton",
   "version": "0.0.1",
   "engines": {
@@ -12,18 +12,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onStartup:5000"
   ],
   "main": "./out/extension.js",
   "contributes": {
-    "configuration": {
-      "title": "hamilton",
-      "properties": {
-        "visualization": {
-
-        }
-      }
-    },
     "commands": [
       {
         "category": "Hamilton",
@@ -39,7 +30,7 @@
       },
       {
         "category": "Hamilton",
-        "command": "hamilton.sidebar.refresh",
+        "command": "hamilton.refreshModules",
         "title": "Refresh Modules",
         "icon": "$(extensions-refresh)"
       },
@@ -92,7 +83,7 @@
           "group": "navigation@2"
         },
         {
-          "command": "hamilton.sidebar.refresh",
+          "command": "hamilton.refreshModules",
           "when": "view == hamilton.sidebar.modules",
           "group": "navigation@3"
         }

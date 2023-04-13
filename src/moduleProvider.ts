@@ -69,7 +69,8 @@ export class ModuleAndSymbolProvider implements vscode.TreeDataProvider<ModuleTr
 
 		// triggers on the first call; map module in cache to tree item
 		if (!element) {
-			return this.moduleCache.values().map(m => ({
+			const moduleItems: ModuleItem[] = this.moduleCache.values();
+			return moduleItems.map(m => ({
 				label: m.label,
 				uri: m.uri,
 				picked: m.picked,
@@ -86,7 +87,7 @@ export class ModuleAndSymbolProvider implements vscode.TreeDataProvider<ModuleTr
 			}
 
 			// filter symbols to Functions, with names not starting with "_" (private functions in Python)
-			const filteredSymbols = symbols.filter(s => s.kind === vscode.SymbolKind.Function).filter(s => !s.name.startsWith("_"));
+			const filteredSymbols = symbols.filter(s => s.kind === vscode.SymbolKind.Function && !s.name.startsWith("_"));
 			return filteredSymbols.map(s => ({
 				label: s.name,
 				picked: true,
