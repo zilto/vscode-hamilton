@@ -1,9 +1,12 @@
 {
   "name": "hamilton",
-  "displayName": "hamilton",
+  "displayName": "Hamilton",
   "description": "VSCode extension for the Hamilton Python framework",
   "publisher": "ThierryJean",
   "repository": "https://github.com/zilto/vscode-hamilton",
+  "author": {
+    "name": "Thierry Jean"
+  },
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.77.0"
@@ -11,6 +14,7 @@
   "categories": [
     "Other"
   ],
+  "icon": "resources/marketplace_icon.png",
   "activationEvents": [
   ],
   "main": "./out/extension.js",
