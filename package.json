@@ -7,17 +7,31 @@
   "author": {
     "name": "Thierry Jean"
   },
-  "version": "0.0.3",
+  "version": "0.0.4",
   "engines": {
     "vscode": "^1.77.0"
   },
   "categories": [
     "Other"
   ],
-  "icon": "resources/marketplace_icon.png",
-  "activationEvents": [
+  "keywords": [
+    "hamilton",
+    "dag",
+    "pipeline"
   ],
+  "icon": "resources/marketplace_icon.png",
+  "activationEvents": [],
   "main": "./out/extension.js",
+  "configuration": {
+    "title": "Hamilton",
+    "properties": {
+      "hamilton.pythonPath": {
+        "description": "Path to the desired Python interpreter, which has access to the Hamilton package.",
+        "type": "string",
+        "default": null
+      }
+    }
+  },
   "contributes": {
     "commands": [
       {
@@ -54,94 +68,98 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "hamilton",
+          "id": "hamilton_view",
           "title": "Hamilton",
           "icon": "$(circuit-board)"
         }
-      ]
+      ],
+      "panel": []
     },
     "views": {
-      "hamilton": [
+      "hamilton_view": [
         {
-          "id": "hamilton.sidebar.modules",
+          "id": "hamilton.modules_treeview",
           "name": "Modules",
           "when": "true"
         },
         {
-          "id": "hamilton.sidebar.pythonFiles",
+          "id": "hamilton.pythonFiles_treeview",
           "name": "Python files",
           "when": "true"
+        },
+        {
+          "id": "hamilton.showHamiltonDag",
+          "type": "webview",
+          "name": "Hamilton: DAG"
         }
       ]
     },
+    "panel": {},
     "menus": {
       "view/title": [
         {
           "command": "hamilton.buildDAG",
-          "when": "view == hamilton.sidebar.modules",
+          "when": "view == hamilton.modules_treeview",
           "group": "navigation@1"
         },
         {
           "command": "hamilton.selectModules",
-          "when": "view == hamilton.sidebar.modules",
+          "when": "view == hamilton.modules_treeview",
           "group": "navigation@2"
         },
         {
           "command": "hamilton.refreshModules",
-          "when": "view == hamilton.sidebar.modules",
+          "when": "view == hamilton.modules_treeview",
           "group": "navigation@3"
         }
       ],
       "view/item/context": [
         {
           "command": "hamilton.registerModule",
-          "when": "view == hamilton.sidebar.pythonFiles && viewItem == pythonFile",
+          "when": "view == hamilton.pythonFiles_treeview && viewItem == pythonFile",
           "group": "inline"
         },
         {
           "command": "hamilton.unregisterModule",
-          "when": "view == hamilton.sidebar.modules && viewItem == pythonModule",
+          "when": "view == hamilton.modules_treeview && viewItem == pythonModule",
           "group": "inline"
         }
       ]
     }
   },
   "scripts": {
+    "install:all": "npm install && cd webview-ui && npm install",
+    "start:webview": "cd webview-ui && npm run start",
+    "build:webview": "cd webview-ui && npm run build",
     "compile": "node ./esbuild.js",
     "package": "NODE_ENV=production node ./esbuild.js",
-    "watch": "node ./esbuild.js --watch"
+    "watch": "node ./esbuild.js --watch",
+    "vscode:prepublish": ""
   },
   "devDependencies": {
-    "@types/glob": "^8.1.0",
-    "@types/mkdirp": "^2.0.0",
+    "@hediet/std": "^0.6.0",
+    "@types/chai": "4.3.4",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
-    "@types/rimraf": "^4.0.5",
     "@types/vscode": "^1.77.0",
+    "@types/vscode-webview": "^1.57.1",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.53.0",
     "@vscode/test-electron": "^2.2.3",
+    "chai": "4.3.7",
     "esbuild": "^0.16.17",
     "eslint": "^8.34.0",
-    "glob": "^8.1.0",
-    "mkdirp": "^2.1.6",
     "mocha": "^10.2.0",
-    "rimraf": "^4.4.1",
+    "sinon": "^15.0.3",
+    "ts-jest": "^29.1.0",
     "ts-loader": "^9.4.2",
-    "typescript": "^4.9.5",
-    "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.1"
-  },
-  "dependencies": {
-    "@hediet/std": "0.6.0",
-    "execa": "5.1.1",
-    "fs-extra": "11.1.0",
-    "minimist": "^1.2.6",
-    "tree-kill": "1.2.2",
-    "rimraf": "^4.4.1",
-    "mkdirp": "^2.1.6"
+    "typescript": "^4.9.5"
   },
   "extensionDependencies": [
     "ms-python.python"
-  ]
+  ],
+  "dependencies": {
+    "@microsoft/fast-react-wrapper": "^0.3.17",
+    "@vscode/webview-ui-toolkit": "^1.2.2"
+  }
 }

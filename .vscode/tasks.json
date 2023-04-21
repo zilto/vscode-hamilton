@@ -18,7 +18,7 @@
 		{
 			"label": "Build and install extension",
 			"type": "shell",
-			"command": "npm run compile && vsce package && code --install-extension hamilton-0.0.1.vsix",
+			"command": "npm run compile && vsce package && code --install-extension hamilton-0.0.4.vsix",
 			"group": "build"
 		}
 	]

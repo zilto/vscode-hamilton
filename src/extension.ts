@@ -1,10 +1,14 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { spawn } from "child_process";
+import { Buffer } from 'node:buffer';
 import { ModuleProvider, ModuleAndSymbolProvider } from './moduleProvider';
 import { ModuleCache, ModuleItem, setDifference } from './cache';
 import { getPythonExecutionPath } from './python';
+import { HamiltonDagPanel } from "./panels/HamiltonDag";
 
 
+// TODO move this to a config
 const MODULE_CACHE_KEY = "moduleCache";
 
 
@@ -33,15 +37,18 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
 	// register module tree view
 	const moduleProvider = new ModuleProvider(pythonFileWatcher);
-	vscode.window.registerTreeDataProvider("hamilton.sidebar.pythonFiles", moduleProvider);
-	vscode.commands.registerCommand("hamilton.registerModule", module => {moduleCache.unselect(module.uri); vscode.commands.executeCommand("hamilton.refreshModules"); });
+	context.subscriptions.push(
+		vscode.window.registerTreeDataProvider("hamilton.pythonFiles_treeview", moduleProvider),
+		vscode.commands.registerCommand("hamilton.registerModule", module => {moduleCache.unselect(module.uri); vscode.commands.executeCommand("hamilton.refreshModules"); })
+	);
 	
 	// register module and symbol tree view
 	const moduleAndSymbolProvider = new ModuleAndSymbolProvider(moduleCache, pythonFileWatcher);
-	vscode.window.registerTreeDataProvider("hamilton.sidebar.modules", moduleAndSymbolProvider);
-	vscode.commands.registerCommand("hamilton.refreshModules", async () => moduleAndSymbolProvider.refresh());
-	vscode.commands.registerCommand("hamilton.unregisterModule", module => { moduleCache.remove(module.uri); vscode.commands.executeCommand("hamilton.refreshModules"); });
-
+	context.subscriptions.push(
+		vscode.window.registerTreeDataProvider("hamilton.modules_treeview", moduleAndSymbolProvider),
+		vscode.commands.registerCommand("hamilton.refreshModules", async () => moduleAndSymbolProvider.refresh()),
+		vscode.commands.registerCommand("hamilton.unregisterModule", module => { moduleCache.remove(module.uri); vscode.commands.executeCommand("hamilton.refreshModules"); }),
+	);
 	
 	// register selectModules command
 	context.subscriptions.push(
@@ -81,26 +88,37 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 	// register buildDAG command
 	context.subscriptions.push(
 		vscode.commands.registerCommand("hamilton.buildDAG", async () => {
-			if (!vscode.workspace.workspaceFolders){
-				return vscode.window.showInformationMessage("No workspace folder selected");
-			}
-			const workspaceRoot = vscode.workspace.workspaceFolders[0];
-
 			const { selected } = moduleCache.partitionSelection();
 			if (selected.length === 0){
 				vscode.commands.executeCommand("hamilton.selectModules");
 			}
-
+			
 			const modulesPath = selected.map(m => pathToPosix(m.uri.path));
-			const commandString = pythonExecutionPath.concat(["", pythonScriptPath, workspaceRoot.uri.path, ...modulesPath].join(" "));
-			console.log("commandString", commandString);
 
-			const terminal = vscode.window.createTerminal({
-				"cwd": workspaceRoot.uri,
-				"hideFromUser": true
+			// the object properties name need to match the Python ScriptConfig dataclass properties
+			const scriptConfig = {
+				module_file_paths: modulesPath,
+				upstream_nodes: [],
+				downstream_nodes: [],
+			}
+			console.log("scriptConfig", JSON.stringify(scriptConfig))
+
+			// spawn child_process; pass scriptConfig as JSON string
+			const scriptExecution = spawn(pythonExecutionPath, [pythonScriptPath, JSON.stringify(scriptConfig)]);
+
+			scriptExecution.stdout.on('data', (buff: Buffer) => {
+				var pythonObj = JSON.parse(buff.toString("utf8"))
+				console.log(pythonObj)
 			});
-			terminal.sendText(commandString);
-			vscode.window.showInformationMessage("Hamilton: Building DAG...");
+
+			scriptExecution.stderr.on('data', (buff: Buffer) => {
+				console.log(buff.toString("utf8"));
+			});
+
+			scriptExecution.on('exit', (code) => {
+				console.log("Python script exit with code : " + code);
+				vscode.window.showInformationMessage("Hamilton: Successfully built DAG!")
+			});
 		})
 	);
 }

@@ -31,3 +31,6 @@
 - Pass Hamilton execution and visualization configuration  from VSCode
 - Allow to select individual functions from module to build graph
 - Provide language support to write Hamilton Python functions
+
+## References
+- Webview with React [link](https://github.com/microsoft/vscode-webview-ui-toolkit/blob/main/docs/getting-started.md)
