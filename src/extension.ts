@@ -6,6 +6,7 @@ import { ModuleProvider, ModuleAndSymbolProvider } from './moduleProvider';
 import { ModuleCache, ModuleItem, setDifference } from './cache';
 import { getPythonExecutionPath } from './python';
 import { HamiltonDagPanel } from "./panels/HamiltonDag";
+import { HamiltonDagProvider } from './panels/HamiltonDagProvider';
 
 
 // TODO move this to a config
@@ -18,6 +19,15 @@ function pathToPosix(anyPath: string): string {
 
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
+	context.subscriptions.push(
+		vscode.commands.registerCommand("hamilton.showDagPanel", () => {HamiltonDagPanel.render(context.extensionUri);})
+	);
+
+	const hamiltonDagProvider = new HamiltonDagProvider(context?.extensionUri);
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider("hamilton.hamiltonDag_webview", hamiltonDagProvider)
+	)
+
 	// TODO handle promise resolve more gracefully
 	const pythonExecutionPath = await getPythonExecutionPath().then(
 		p => {return p ? pathToPosix(p) : undefined; }
@@ -108,7 +118,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
 			scriptExecution.stdout.on('data', (buff: Buffer) => {
 				var pythonObj = JSON.parse(buff.toString("utf8"))
-				console.log(pythonObj)
+
+				hamiltonDagProvider.updateElements(pythonObj)
 			});
 
 			scriptExecution.stderr.on('data', (buff: Buffer) => {

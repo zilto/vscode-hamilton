@@ -36,6 +36,11 @@
     "commands": [
       {
         "category": "Hamilton",
+        "command": "hamilton.showDagPanel",
+        "title": "Show DAG"
+      },
+      {
+        "category": "Hamilton",
         "command": "hamilton.buildDAG",
         "title": "Build DAG",
         "icon": "$(play)"
@@ -88,8 +93,8 @@
           "when": "true"
         },
         {
-          "id": "hamilton.showHamiltonDag",
           "type": "webview",
+          "id": "hamilton.hamiltonDag_webview",
           "name": "Hamilton: DAG"
         }
       ]
@@ -139,6 +144,7 @@
   "devDependencies": {
     "@hediet/std": "^0.6.0",
     "@types/chai": "4.3.4",
+    "@types/cytoscape": "^3.19.9",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
     "@types/vscode": "^1.77.0",
@@ -147,6 +153,8 @@
     "@typescript-eslint/parser": "^5.53.0",
     "@vscode/test-electron": "^2.2.3",
     "chai": "4.3.7",
+    "cytoscape": "^3.24.0",
+    "cytoscape-dagre": "^2.5.0",
     "esbuild": "^0.16.17",
     "eslint": "^8.34.0",
     "mocha": "^10.2.0",
@@ -157,9 +165,5 @@
   },
   "extensionDependencies": [
     "ms-python.python"
-  ],
-  "dependencies": {
-    "@microsoft/fast-react-wrapper": "^0.3.17",
-    "@vscode/webview-ui-toolkit": "^1.2.2"
-  }
+  ]
 }
