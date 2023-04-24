@@ -7,7 +7,7 @@
   "author": {
     "name": "Thierry Jean"
   },
-  "version": "0.0.4",
+  "version": "0.0.5",
   "engines": {
     "vscode": "^1.77.0"
   },
@@ -36,13 +36,8 @@
     "commands": [
       {
         "category": "Hamilton",
-        "command": "hamilton.showDagPanel",
-        "title": "Show DAG"
-      },
-      {
-        "category": "Hamilton",
-        "command": "hamilton.buildDAG",
-        "title": "Build DAG",
+        "command": "hamilton.compileDAG",
+        "title": "Compile DAG",
         "icon": "$(play)"
       },
       {
@@ -68,20 +63,32 @@
         "command": "hamilton.unregisterModule",
         "title": "Unregister Module",
         "icon": "$(chrome-close)"
+      },
+      {
+        "category": "Hamilton",
+        "command": "hamilton.rotateDag",
+        "title": "Hamilton: Rotate DAG",
+        "icon": "$(debug-step-over)"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "hamilton_view",
+          "id": "hamilton-sidebar",
           "title": "Hamilton",
           "icon": "$(circuit-board)"
         }
       ],
-      "panel": []
+      "panel": [
+        {
+          "id": "hamilton-panel",
+          "title": "Hamilton",
+          "icon": "$(circuit-board)"
+        }
+      ]
     },
     "views": {
-      "hamilton_view": [
+      "hamilton-sidebar": [
         {
           "id": "hamilton.modules_treeview",
           "name": "Modules",
@@ -91,19 +98,21 @@
           "id": "hamilton.pythonFiles_treeview",
           "name": "Python files",
           "when": "true"
-        },
+        }
+      ],
+      "hamilton-panel": [
         {
           "type": "webview",
-          "id": "hamilton.hamiltonDag_webview",
-          "name": "Hamilton: DAG"
+          "id": "hamilton.DAG_webview",
+          "name": "Hamilton: DAG",
+          "when": "true"
         }
       ]
     },
-    "panel": {},
     "menus": {
       "view/title": [
         {
-          "command": "hamilton.buildDAG",
+          "command": "hamilton.compileDAG",
           "when": "view == hamilton.modules_treeview",
           "group": "navigation@1"
         },
@@ -116,6 +125,11 @@
           "command": "hamilton.refreshModules",
           "when": "view == hamilton.modules_treeview",
           "group": "navigation@3"
+        },
+        {
+          "command": "hamilton.rotateDag",
+          "when": "view == hamilton.DAG_webview",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
@@ -133,12 +147,10 @@
     }
   },
   "scripts": {
-    "install:all": "npm install && cd webview-ui && npm install",
-    "start:webview": "cd webview-ui && npm run start",
-    "build:webview": "cd webview-ui && npm run build",
     "compile": "node ./esbuild.js",
     "package": "NODE_ENV=production node ./esbuild.js",
     "watch": "node ./esbuild.js --watch",
+    "pretty": "prettier --write \"src/**/*.ts\"",
     "vscode:prepublish": ""
   },
   "devDependencies": {
@@ -157,7 +169,10 @@
     "cytoscape-dagre": "^2.5.0",
     "esbuild": "^0.16.17",
     "eslint": "^8.34.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "mocha": "^10.2.0",
+    "prettier": "^2.8.8",
     "sinon": "^15.0.3",
     "ts-jest": "^29.1.0",
     "ts-loader": "^9.4.2",
