@@ -35,7 +35,6 @@ export class dagWebviewProvider implements vscode.WebviewViewProvider {
   }
 
   public rotate(){
-    console.log("dagprovider.rotate")
     this._view?.webview.postMessage({ command: "rotate", details: null})
   }
 

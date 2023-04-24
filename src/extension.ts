@@ -47,8 +47,11 @@ export async function activate(context: vscode.ExtensionContext) {
   const hamiltonDagProvider = new dagWebviewProvider(context?.extensionUri);
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(dagWebviewProvider.viewId, hamiltonDagProvider),
-    vscode.commands.registerCommand("hamilton.rotateDAG", () => hamiltonDagProvider.rotate())
   );
+  
+  context.subscriptions.push(
+    vscode.commands.registerCommand("hamilton.rotate", () => hamiltonDagProvider.rotate())
+  )
 
 
   // register selectModules command

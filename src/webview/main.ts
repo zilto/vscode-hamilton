@@ -4,7 +4,15 @@ import dagre from "cytoscape-dagre";
 cytoscape.use(dagre);
 
 var cy: cytoscape.Core;
-var layout: cytoscape.Layouts
+var layout = {
+  name: "dagre",
+  directed: true,
+  rankDir: "LR",
+  nodeDimensionsIncludeLabels: true,
+  fit: true,
+  animate: true,
+  animationDuration: 250,
+}
 
 const stylesToGet = ["editorSelectionHighlightBackground", "editorSelectionBackground"];
 
@@ -125,13 +133,7 @@ function main() {
       ],
     },
     style: cyStylesheet,
-    layout: {
-      name: "dagre",
-      directed: true,
-      rankDir: "LR",
-      nodeDimensionsIncludeLabels: true,
-      fit: true,
-    },
+    layout: layout,
     boxSelectionEnabled: false,
   });
   cy.fit();
@@ -149,7 +151,7 @@ function bindCytoscapeEvents(cy: cytoscape.Core) {
 
 window.addEventListener("message", (event) => {
   const message = event.data;
-  console.log("listenmessage", message)
+  console.log("layout", cy.layout)
 
   switch (message.command) {
     case "updateElements":
@@ -161,25 +163,16 @@ window.addEventListener("message", (event) => {
       cy.remove("*");
       cy.add(message.details.elements);
 
-      // TODO handle layout separetely for reusability
-      cy.layout({
-        name: "dagre",
-        directed: true,
-        rankDir: "LR",
-        nodeDimensionsIncludeLabels: true,
-        animate: true,
-      }).run();
+      cy.layout(layout).run();
       break
 
     case "rotate":
-      console.log("switchcase rotate")
-      cy.layout({
-        name: "dagre",
-        directed: true,
-        rankDir: "TB",
-        nodeDimensionsIncludeLabels: true,
-        animate: true,
-      }).run();
+      if (layout.rankDir === "LR") {
+        layout.rankDir = "TB"
+      } else {
+        layout.rankDir = "LR"
+      }
+      cy.layout(layout).run();
 
       break;
   }
