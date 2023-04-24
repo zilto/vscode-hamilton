@@ -34,3 +34,4 @@
 
 ## References
 - Webview with React [link](https://github.com/microsoft/vscode-webview-ui-toolkit/blob/main/docs/getting-started.md)
+- Programmatically access Theme [link](https://www.eliostruyf.com/code-driven-approach-theme-vscode-webview/)

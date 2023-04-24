@@ -1,29 +1,17 @@
-import * as vscode from 'vscode';
-import {getNonce} from "../utils/getNonce"
-import {getUri} from "../utils/getUri"
+import * as vscode from "vscode";
+import { getNonce } from "../utils/getNonce";
+import { getUri } from "../utils/getUri";
 
-
-// TODO define DAG data interface
-
-export class HamiltonDagProvider implements vscode.WebviewViewProvider{
-  public static readonly viewType = "hamilton.DagPanel"
+export class dagWebviewProvider implements vscode.WebviewViewProvider {
+  public static readonly viewId = "hamilton.DAG_webview";
   public _view?: vscode.WebviewView;
 
-  private _onDidChangeDAGData: vscode.EventEmitter<any | undefined | null | void> = new vscode.EventEmitter<any | undefined | null | void>();
-  readonly onDidChangeDAGData: vscode.Event<any | undefined | null | void> = this._onDidChangeDAGData.event;
-
-  constructor(
-    private readonly _extensionUri: vscode.Uri,
-  ) {}
-
-  public refresh(): void {
-    this._onDidChangeDAGData.fire(null);
-  }
+  constructor(private readonly _extensionUri: vscode.Uri) {}
 
   public resolveWebviewView(
     webviewView: vscode.WebviewView,
     context: vscode.WebviewViewResolveContext,
-		_token: vscode.CancellationToken,
+    _token: vscode.CancellationToken,
   ): void | Thenable<void> {
     this._view = webviewView;
 
@@ -33,24 +21,22 @@ export class HamiltonDagProvider implements vscode.WebviewViewProvider{
     };
 
     webviewView.webview.html = this._getWebviewContent(webviewView.webview, this._extensionUri);
-    
-    webviewView.webview.onDidReceiveMessage(
-      (message: any) => {
-        const command = message.command;
-        switch (command) {
-          case "updateElements":
-            vscode.window.showInformationMessage(message.text);
-            return;
-        }
-      },
-      undefined,
-    );
+
+    // no event currently implemented
+    webviewView.webview.onDidReceiveMessage((message: any) => {
+      const command = message.command;
+      switch (command) {
+      }
+    }, undefined);
   }
 
-  public updateElements(data: any){
-    console.log("from DAG provideR", data)
-    this._view?.webview.postMessage({command: "updateElements", data: data})
-    this.refresh()
+  public updateElements(data: any) {
+    this._view?.webview.postMessage({ command: "updateElements", details: data });
+  }
+
+  public rotate(){
+    console.log("dagprovider.rotate")
+    this._view?.webview.postMessage({ command: "rotate", details: null})
   }
 
   _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri) {
@@ -84,4 +70,4 @@ export class HamiltonDagProvider implements vscode.WebviewViewProvider{
     `
     );
   }
-};
+}

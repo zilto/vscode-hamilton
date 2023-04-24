@@ -1,7 +1,9 @@
+from contextlib import redirect_stdout
 from dataclasses import dataclass, field
 import importlib
 import json
 from pathlib import Path
+import io
 import sys
 from typing import List
 
@@ -30,10 +32,9 @@ def main(cfg: ScriptConfig) -> None:
             module_path = Path(py_file_path)
             spec = importlib.util.spec_from_file_location(module_path.stem, module_path)
             module = spec.loader.load_module()
-            modules.append(module)
-
+            modules.append(module)#
         except ModuleNotFoundError as e:
-            print(f"{e}: Can't find module: {module_path.stem}")
+            raise e
 
     hamilton_graph = FunctionGraph(*modules, config={})
 
@@ -45,11 +46,15 @@ def main(cfg: ScriptConfig) -> None:
         requested_nodes = requested_nodes.union(set(hamilton_graph.get_nodes()))
 
     graph = create_networkx_graph(requested_nodes, set(), "vscode-hamilton")
-    graph_json_dict: dict = networkx.cytoscape_data(graph)
+    graph_json_string = json.dumps(networkx.cytoscape_data(graph))
 
-    print(json.dumps(graph_json_dict))
+    padded_json_string = "#"*3 + graph_json_string + "#"*3
+    return padded_json_string
 
 
 if __name__ == "__main__":
-    config = load_config(sys.argv[1])
-    main(config)
+    with redirect_stdout(io.StringIO()):
+        config = load_config(sys.argv[1])
+        padded_json_string = main(config)
+
+    sys.stdout.write(padded_json_string)
