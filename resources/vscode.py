@@ -5,14 +5,14 @@ import json
 from pathlib import Path
 import io
 import sys
-from typing import List
+from typing import List, Set
 
 try:
-    from hamilton.graph import FunctionGraph, create_networkx_graph
+    from hamilton.graph import FunctionGraph
+    from hamilton import node
     import networkx
 except ModuleNotFoundError as e:
     raise e
-
 
 @dataclass(frozen=True)
 class ScriptConfig:
@@ -23,6 +23,39 @@ class ScriptConfig:
 
 def load_config(json_string) -> ScriptConfig:
     return ScriptConfig(**json.loads(json_string))
+
+
+def _create_networkx_graph(
+    nodes: Set[node.Node], user_nodes: Set[node.Node], name: str
+) -> "networkx.DiGraph":  # noqa: F821
+    """Helper function to create a networkx graph.
+    :param nodes: The set of computational nodes
+    :param user_nodes: The set of nodes that the user is providing inputs for.
+    :param name: The name to have on the graph.
+    :return: a graphviz.Digraph; use this to render/save a graph representation.
+    """
+    import networkx
+
+    def _node_representation(node) -> dict:
+        base = dict(
+            label=node.name,
+            doc=node.documentation,
+            type=node.type.__name__,
+            module=node.tags.get("module", "UD"),  # want to make sure module is captured 
+        )
+        base.update(**node.tags)
+        return base
+
+    digraph = networkx.DiGraph(name=name)
+    for n in nodes:
+        digraph.add_node(n.name, **_node_representation(n))
+    for n in user_nodes:
+        digraph.add_node(n.name, **_node_representation(n))
+
+    for n in list(nodes) + list(user_nodes):
+        for d in n.dependencies:
+            digraph.add_edge(d.name, n.name)
+    return digraph
 
 
 def main(cfg: ScriptConfig) -> None:
@@ -45,7 +78,7 @@ def main(cfg: ScriptConfig) -> None:
     else:
         requested_nodes = requested_nodes.union(set(hamilton_graph.get_nodes()))
 
-    graph = create_networkx_graph(requested_nodes, set(), "vscode-hamilton")
+    graph = _create_networkx_graph(requested_nodes, set(), "vscode-hamilton")
     graph_json_string = json.dumps(networkx.cytoscape_data(graph))
 
     padded_json_string = "#"*3 + graph_json_string + "#"*3

@@ -41,17 +41,13 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.commands.executeCommand("hamilton.refreshModules");
     }),
   );
-  // vscode.commands.executeCommand("hamilton.refreshModules")
 
   // register dag webview
   const hamiltonDagProvider = new dagWebviewProvider(context?.extensionUri);
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(dagWebviewProvider.viewId, hamiltonDagProvider),
-  );
-  
-  context.subscriptions.push(
     vscode.commands.registerCommand("hamilton.rotate", () => hamiltonDagProvider.rotate())
-  )
+  );
 
 
   // register selectModules command
@@ -105,7 +101,6 @@ export async function activate(context: vscode.ExtensionContext) {
         const regex = /(?<=#{3})(?<response>.*)(?=#{3})/;
         const match = stdout.match(regex);
         if (match?.groups?.response) {
-          console.log(JSON.parse(match.groups?.response));
           return JSON.parse(match.groups?.response);
         } else {
           return "";

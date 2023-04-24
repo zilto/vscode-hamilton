@@ -52,7 +52,7 @@ const cyStylesheet: cytoscape.Stylesheet[] = [
   {
     selector: "node",
     style: {
-      label: "data(id)",
+      label: "data(label)",
       "text-valign": "center",
       "text-halign": "center",
       "background-width": "90%",
@@ -73,9 +73,19 @@ const cyStylesheet: cytoscape.Stylesheet[] = [
     },
   },
   {
-    selector: ":selected",
+    selector: ".module",
     style: {
-      "border-width": "2",
+      shape: "round-rectangle",
+      width: "label", 
+      "background-color": "#C6C6C6",
+      "background-opacity": 0.3,
+    }
+  },
+  {
+    selector: ":parent",
+    style: {
+      "text-valign": "top",
+      "text-halign": "center",
     },
   },
   {
@@ -100,15 +110,14 @@ function main() {
     minZoom: 0.2,
     elements: {
       nodes: [
-        { data: { id: "A" } },
-        { data: { id: "B" } },
-        { data: { id: "C" } },
-        { data: { id: "E" } },
-        { data: { id: "F" } },
-        { data: { id: "G" } },
-        { data: { id: "H" } },
-        { data: { id: "J" } },
-        { data: { id: "K" } },
+        { data: { id: "A", label: "A" } },
+        { data: { id: "B", label: "B"  } },
+        { data: { id: "C", label: "C"  } },
+        { data: { id: "E", label: "E"  } },
+        { data: { id: "F", label: "F"  } },
+        { data: { id: "H", label: "H"  } },
+        { data: { id: "J", label: "J"  } },
+        { data: { id: "K", label: "K"  } },
       ],
       edges: [
         { data: { id: "e1", source: "A", target: "B" } },
@@ -125,22 +134,20 @@ function main() {
     layout: layout,
     boxSelectionEnabled: false,
   });
-  cy.fit();
-
+  
   bindCytoscapeEvents(cy);
+
+  cy.fit();
 }
 
 function bindCytoscapeEvents(cy: cytoscape.Core) {
-  const fit = () => {
-    cy.fit();
-  };
+  const fit = () => cy.fit();
 
   cy.on("dblclick", fit);
 }
 
 window.addEventListener("message", (event) => {
   const message = event.data;
-  console.log("layout", cy.layout)
 
   switch (message.command) {
     case "updateElements":
@@ -152,6 +159,9 @@ window.addEventListener("message", (event) => {
       cy.remove("*");
       cy.add(message.details.elements);
 
+      let moduleSet = new Set(cy.nodes().toArray().map(ele => ele.data("module")))
+      moduleSet.forEach(m => cy.add({group: "nodes", classes: "module", data: {id: m, name: m, label: "Module: " + m}}))
+  
       cy.layout(layout).run();
       break
 
