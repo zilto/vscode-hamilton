@@ -88,7 +88,6 @@ export class ModulesProvider implements vscode.TreeDataProvider<ModuleTreeItem> 
 
     // triggers on recursive calls; get all python functions in python files
     else if (element && element?.type === "pythonModule") {
-      console.log(element);
       const symbols: vscode.SymbolInformation[] = await vscode.commands.executeCommand(
         "vscode.executeDocumentSymbolProvider",
         vscode.Uri.from(element.uri),

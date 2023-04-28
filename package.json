@@ -7,7 +7,7 @@
   "author": {
     "name": "Thierry Jean"
   },
-  "version": "0.0.7",
+  "version": "0.0.8",
   "engines": {
     "vscode": "^1.77.0"
   },
@@ -69,6 +69,24 @@
         "command": "hamilton.rotate",
         "title": "Hamilton: Rotate DAG",
         "icon": "$(debug-step-over)"
+      },
+      {
+        "category": "Hamilton",
+        "command": "hamilton.save",
+        "title": "Hamilton: Save DAG",
+        "icon": "$(save)"
+      },
+      {
+        "category": "Hamilton",
+        "command": "hamilton.expandAll",
+        "title": "Hamilton: Expand All",
+        "icon": "$(expand-all)"
+      },
+      {
+        "category": "Hamilton",
+        "command": "hamilton.collapseAll",
+        "title": "Hamilton: Collapse All",
+        "icon": "$(collapse-all)"
       }
     ],
     "viewsContainers": {
@@ -104,7 +122,7 @@
         {
           "type": "webview",
           "id": "hamilton.DAG_webview",
-          "name": "Hamilton: DAG",
+          "name": "DAG",
           "when": "true"
         }
       ]
@@ -127,9 +145,29 @@
           "group": "navigation@3"
         },
         {
+          "command": "hamilton.save",
+          "when": "view == hamilton.DAG_webview",
+          "group": "navigation@1"
+        },
+        {
+          "command": "hamilton.compileDAG",
+          "when": "view == hamilton.DAG_webview",
+          "group": "navigation@2"
+        },
+        {
+          "command": "hamilton.expandAll",
+          "when": "view == hamilton.DAG_webview",
+          "group": "navigation@3"
+        },
+        {
+          "command": "hamilton.collapseAll",
+          "when": "view == hamilton.DAG_webview",
+          "group": "navigation@4"
+        },
+        {
           "command": "hamilton.rotate",
           "when": "view == hamilton.DAG_webview",
-          "group": "navigation"
+          "group": "navigation@5"
         }
       ],
       "view/item/context": [
@@ -167,6 +205,8 @@
     "chai": "4.3.7",
     "cytoscape": "^3.24.0",
     "cytoscape-dagre": "^2.5.0",
+    "cytoscape-expand-collapse": "^4.1.0",
+    "cytoscape-svg": "^0.4.0",
     "esbuild": "^0.16.17",
     "eslint": "^8.34.0",
     "eslint-config-prettier": "^8.8.0",

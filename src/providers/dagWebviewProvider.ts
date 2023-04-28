@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { getNonce } from "../utils/getNonce";
 import { getUri } from "../utils/getUri";
+import { Message, DagSaveMessage } from "../messages";
 
 export class dagWebviewProvider implements vscode.WebviewViewProvider {
   public static readonly viewId = "hamilton.DAG_webview";
@@ -22,20 +23,45 @@ export class dagWebviewProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.html = this._getWebviewContent(webviewView.webview, this._extensionUri);
 
-    // no event currently implemented
-    webviewView.webview.onDidReceiveMessage((message: any) => {
-      const command = message.command;
-      switch (command) {
+    webviewView.webview.onDidReceiveMessage((message: Message) => {
+      switch (message.command) {
+        case "save":
+          this.handleSave(message)
       }
     }, undefined);
   }
 
-  public updateElements(data: any) {
-    this._view?.webview.postMessage({ command: "updateElements", details: data });
+  public update(data: any) {
+    this._view?.webview.postMessage({ command: "update", details: data });
   }
 
   public rotate(){
-    this._view?.webview.postMessage({ command: "rotate", details: null})
+    this._view?.webview.postMessage({ command: "rotate", details: null })
+  }
+
+  public save(){
+    let format = "svg"
+    this._view?.webview.postMessage({ command: "save", details: {format: format} })
+  }
+
+  public expandAll(){
+    this._view?.webview.postMessage({ command: "expandAll", details: null })
+  }
+
+  public collapseAll(){
+    this._view?.webview.postMessage({ command: "collapseAll", details: null })
+  }
+
+  private handleSave(message: DagSaveMessage){
+    const filename = "hamilton." + message.details.format
+    const content = Buffer.from(message.details.content)
+    vscode.window.showSaveDialog(
+      {
+        defaultUri: vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, filename),
+        saveLabel: "Save DAG",
+        title:"Hamilton: Save DAG"
+      }
+    ).then(uri => vscode.workspace.fs.writeFile(uri, content))
   }
 
   _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri) {

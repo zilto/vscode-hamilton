@@ -41,7 +41,7 @@ def _create_networkx_graph(
             label=node.name,
             doc=node.documentation,
             type=node.type.__name__,
-            module=node.tags.get("module", "UD"),  # want to make sure module is captured 
+            module=node.tags.get("module", "user_defined"),  # want to make sure module is captured 
         )
         base.update(**node.tags)
         return base

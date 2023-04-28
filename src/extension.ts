@@ -46,7 +46,10 @@ export async function activate(context: vscode.ExtensionContext) {
   const hamiltonDagProvider = new dagWebviewProvider(context?.extensionUri);
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(dagWebviewProvider.viewId, hamiltonDagProvider),
-    vscode.commands.registerCommand("hamilton.rotate", () => hamiltonDagProvider.rotate())
+    vscode.commands.registerCommand("hamilton.rotate", () => hamiltonDagProvider.rotate()),
+    vscode.commands.registerCommand("hamilton.save", () => hamiltonDagProvider.save()),
+    vscode.commands.registerCommand("hamilton.expandAll", () => hamiltonDagProvider.expandAll()),
+    vscode.commands.registerCommand("hamilton.collapseAll", () => hamiltonDagProvider.collapseAll()),
   );
 
 
@@ -55,7 +58,6 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("hamilton.selectModules", async () => {
       const items: ModuleItem[] = moduleCache.values();
       if (!items) {
-        console.log("!items", items);
         return;
       }
 
@@ -118,7 +120,7 @@ export async function activate(context: vscode.ExtensionContext) {
         } else if (stdout) {
           const graphData = parseStdout(stdout);
           if (graphData) {
-            hamiltonDagProvider.updateElements(graphData);
+            hamiltonDagProvider.update(graphData);
           }
         }
       });
