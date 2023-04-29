@@ -87,6 +87,7 @@ const cyStylesheet: cytoscape.Stylesheet[] = [
   {
     selector: "node.validator",
     style: {
+      label: (element) => {return element.data("label").split(element.data("parent") + "_")[1]},
       shape: "round-rectangle",
       width: "label",
       "border-width": 0,
@@ -109,6 +110,7 @@ const cyStylesheet: cytoscape.Stylesheet[] = [
   {
     selector: "node.module",
     style: {
+      label: (element) => {return "Module: " + element.data("label")},
       shape: "round-rectangle",
       width: "label",
       "text-valign": "top",
@@ -220,7 +222,7 @@ function handleUpdate(message: any) {
   cy.add(message.details.elements);
 
   moduleSet.forEach((m: string) => {
-    cy.add({ group: "nodes", classes: "module", data: { id: m, name: m, label: "Module: " + m } });
+    cy.add({ group: "nodes", classes: "module", data: { id: m, name: m, label: m } });
     cy.$('node[module ="' + m + '"]').move({ parent: m });
   });
 
