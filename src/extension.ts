@@ -52,7 +52,6 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("hamilton.collapseAll", () => hamiltonDagProvider.collapseAll()),
   );
 
-
   // register selectModules command
   context.subscriptions.push(
     vscode.commands.registerCommand("hamilton.selectModules", async () => {

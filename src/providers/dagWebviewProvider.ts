@@ -26,7 +26,7 @@ export class dagWebviewProvider implements vscode.WebviewViewProvider {
     webviewView.webview.onDidReceiveMessage((message: Message) => {
       switch (message.command) {
         case "save":
-          this.handleSave(message)
+          this.handleSave(message);
       }
     }, undefined);
   }
@@ -35,33 +35,33 @@ export class dagWebviewProvider implements vscode.WebviewViewProvider {
     this._view?.webview.postMessage({ command: "update", details: data });
   }
 
-  public rotate(){
-    this._view?.webview.postMessage({ command: "rotate", details: null })
+  public rotate() {
+    this._view?.webview.postMessage({ command: "rotate", details: null });
   }
 
-  public save(){
-    let format = "svg"
-    this._view?.webview.postMessage({ command: "save", details: {format: format} })
+  public save() {
+    let format = "svg";
+    this._view?.webview.postMessage({ command: "save", details: { format: format } });
   }
 
-  public expandAll(){
-    this._view?.webview.postMessage({ command: "expandAll", details: null })
+  public expandAll() {
+    this._view?.webview.postMessage({ command: "expandAll", details: null });
   }
 
-  public collapseAll(){
-    this._view?.webview.postMessage({ command: "collapseAll", details: null })
+  public collapseAll() {
+    this._view?.webview.postMessage({ command: "collapseAll", details: null });
   }
 
-  private handleSave(message: DagSaveMessage){
-    const filename = "hamilton." + message.details.format
-    const content = Buffer.from(message.details.content)
-    vscode.window.showSaveDialog(
-      {
+  private handleSave(message: DagSaveMessage) {
+    const filename = "hamilton." + message.details.format;
+    const content = Buffer.from(message.details.content);
+    vscode.window
+      .showSaveDialog({
         defaultUri: vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, filename),
         saveLabel: "Save DAG",
-        title:"Hamilton: Save DAG"
-      }
-    ).then(uri => vscode.workspace.fs.writeFile(uri, content))
+        title: "Hamilton: Save DAG",
+      })
+      .then((uri) => vscode.workspace.fs.writeFile(uri, content));
   }
 
   _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri) {
