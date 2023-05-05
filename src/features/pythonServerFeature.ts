@@ -25,7 +25,7 @@ export class SocketServer {
     if (!SocketServer.instance) {
       SocketServer.instance = new SocketServer(config, logger);
 
-      logger.info(`${SocketServer.logHeader} instanciating`, config);
+      logger.info(`${SocketServer.logHeader} instantiating`, config);
     }
 
     return SocketServer.instance;
