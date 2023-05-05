@@ -1,1 +1,1 @@
-export const EXTENSION_NAME = "hamilton";
+export const EXTENSION_NAME = "Hamilton";

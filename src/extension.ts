@@ -12,8 +12,8 @@ export function activate(context: vscode.ExtensionContext) {
   const moduleCache: CacheProvider = CacheProvider.getInstance(context, "moduleCache");
 
   extensionFeatures = [
-    new PythonWebSocketsFeatures(context, moduleCache),
-    new ModuleTreeviewFeature(context, moduleCache, logger),
+    new PythonWebSocketsFeatures(context, moduleCache, logger),
+    new ModuleTreeviewFeature(context, moduleCache),
     new DagWebviewFeature(context),
   ];
 }

@@ -2,17 +2,15 @@ import * as vscode from "vscode";
 import { CacheProvider } from "./cacheFeature";
 
 class Item extends vscode.TreeItem {
-  constructor(
-    public resourceUri: vscode.Uri,
-  ){
-    super(resourceUri)
+  constructor(public resourceUri: vscode.Uri) {
+    super(resourceUri);
   }
 }
 
 class PythonFileTreeItem extends Item {
-  contextValue = "pythonFile"
-  collapsibleState = vscode.TreeItemCollapsibleState.None
-  iconPath = new vscode.ThemeIcon("file")
+  contextValue = "pythonFile";
+  collapsibleState = vscode.TreeItemCollapsibleState.None;
+  iconPath = new vscode.ThemeIcon("file");
   command = {
     command: "vscode.open",
     title: "Go to module",
@@ -21,9 +19,9 @@ class PythonFileTreeItem extends Item {
 }
 
 class ModuleTreeItem extends Item {
-  contextValue = "pythonModule"
-  collapsibleState = vscode.TreeItemCollapsibleState.Collapsed
-  iconPath = new vscode.ThemeIcon("file")
+  contextValue = "pythonModule";
+  collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+  iconPath = new vscode.ThemeIcon("file");
   command = {
     command: "vscode.open",
     title: "Go to module",
@@ -32,17 +30,14 @@ class ModuleTreeItem extends Item {
 }
 
 class FunctionTreeItem extends Item {
-  constructor(
-    public resourceUri: vscode.Uri,
-    public symbol: vscode.SymbolInformation,
-  ) {
-    super(resourceUri)
+  constructor(public resourceUri: vscode.Uri, public symbol: vscode.SymbolInformation) {
+    super(resourceUri);
   }
 
-  label = this.symbol.name
-  contextValue = "moduleFunc"
-  collapsibleState = vscode.TreeItemCollapsibleState.None
-  iconPath = new vscode.ThemeIcon("symbol-function")
+  label = this.symbol.name;
+  contextValue = "moduleFunc";
+  collapsibleState = vscode.TreeItemCollapsibleState.None;
+  iconPath = new vscode.ThemeIcon("symbol-function");
   command = {
     command: "editor.action.goToLocations",
     title: "Go to symbol",
@@ -53,9 +48,10 @@ class FunctionTreeItem extends Item {
 class PythonFilesProvider implements vscode.TreeDataProvider<Item> {
   public static readonly viewId = "hamilton.pythonFiles_treeview";
 
-  private _onDidChangeTreeData: vscode.EventEmitter<Item | undefined | null | void> = new vscode.EventEmitter<Item | undefined | null | void>();
-  readonly onDidChangeTreeData: vscode.Event<Item | undefined | null | void> =
-    this._onDidChangeTreeData.event;
+  private _onDidChangeTreeData: vscode.EventEmitter<Item | undefined | null | void> = new vscode.EventEmitter<
+    Item | undefined | null | void
+  >();
+  readonly onDidChangeTreeData: vscode.Event<Item | undefined | null | void> = this._onDidChangeTreeData.event;
 
   constructor(private fileWatcher: vscode.FileSystemWatcher) {
     this.fileWatcher.onDidChange(() => this.refresh());
@@ -67,21 +63,21 @@ class PythonFilesProvider implements vscode.TreeDataProvider<Item> {
 
   async getChildren(element?: Item): Promise<Item[]> {
     const pythonFiles = await vscode.workspace.findFiles("**/*.py");
-    return pythonFiles.map(uri => new PythonFileTreeItem(uri));
+    return pythonFiles.map((uri) => new PythonFileTreeItem(uri));
   }
 
   getTreeItem(element: Item): vscode.TreeItem {
-    return element
+    return element;
   }
 }
 
 class ModulesProvider implements vscode.TreeDataProvider<Item> {
   public static readonly viewId = "hamilton.modules_treeview";
 
-  private _onDidChangeTreeData: vscode.EventEmitter<Item | undefined | null | void> =
-    new vscode.EventEmitter<Item | undefined | null | void>();
-  readonly onDidChangeTreeData: vscode.Event<Item | undefined | null | void> =
-    this._onDidChangeTreeData.event;
+  private _onDidChangeTreeData: vscode.EventEmitter<Item | undefined | null | void> = new vscode.EventEmitter<
+    Item | undefined | null | void
+  >();
+  readonly onDidChangeTreeData: vscode.Event<Item | undefined | null | void> = this._onDidChangeTreeData.event;
 
   constructor(private fileWatcher: vscode.FileSystemWatcher, private moduleCache: CacheProvider) {
     this.fileWatcher.onDidChange(() => this.refresh());
@@ -94,7 +90,7 @@ class ModulesProvider implements vscode.TreeDataProvider<Item> {
   async getChildren(element?: Item): Promise<Item[]> {
     // triggers on the first call; map module in cache to tree item
     if (!element) {
-      return this.moduleCache.values().map(uri => new ModuleTreeItem(uri));
+      return this.moduleCache.values().map((uri) => new ModuleTreeItem(uri));
     }
 
     // triggers on recursive calls; get all python functions in python files
@@ -108,16 +104,14 @@ class ModulesProvider implements vscode.TreeDataProvider<Item> {
       }
 
       // filter symbols to Functions, with names not starting with "_" (private functions in Python)
-      const filteredSymbols = symbols.filter(s => s.kind === vscode.SymbolKind.Function && !s.name.startsWith("_"));
-      return filteredSymbols.map(symbol => 
-        new FunctionTreeItem(element.resourceUri, symbol)
-      );
+      const filteredSymbols = symbols.filter((s) => s.kind === vscode.SymbolKind.Function && !s.name.startsWith("_"));
+      return filteredSymbols.map((symbol) => new FunctionTreeItem(element.resourceUri, symbol));
     }
     return [];
   }
 
   getTreeItem(element: Item): vscode.TreeItem {
-    return element
+    return element;
   }
 }
 
@@ -127,7 +121,7 @@ export class ModuleTreeviewFeature implements vscode.Disposable {
   private modulesProvider: ModulesProvider;
   private pythonFilesProvider: PythonFilesProvider;
 
-  constructor(context: vscode.ExtensionContext, cacheProvider: CacheProvider, loggerChannel: vscode.OutputChannel) {
+  constructor(context: vscode.ExtensionContext, cacheProvider: CacheProvider) {
     this.filewatcher = vscode.workspace.createFileSystemWatcher("**/*.py");
     this.moduleCache = cacheProvider;
     this.modulesProvider = new ModulesProvider(this.filewatcher, this.moduleCache);
