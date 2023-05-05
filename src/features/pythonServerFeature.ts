@@ -37,19 +37,22 @@ export class SocketServer {
       return;
     }
 
+  
     this.process = spawn(this.pythonPath, [this.serverPath]);
     this.logger.info(`${SocketServer.logHeader} started`);
 
-    this.process.stdout?.on("message", (event) => {
-      this.logger.debug(`${SocketServer.logHeader}[stdout]`, event);
+    const that = this;
+
+    this.process.stdout?.on("data", (data) => {
+      that.logger.debug(`${SocketServer.logHeader}[stdout]`, data.toString());
     });
 
-    this.process.stderr?.on("message", (event) => {
-      this.logger.error(`${SocketServer.logHeader}[stderr]`, event);
+    this.process.stderr?.on("data", (data) => {
+      that.logger.error(`${SocketServer.logHeader}[stderr]`, data.toString());
     });
 
     this.process.on("close", (code) => {
-      this.logger.info(`${SocketServer.logHeader} closing`, code);
+      that.logger.info(`${SocketServer.logHeader} closing`, code);
     });
   }
 
@@ -81,9 +84,9 @@ export class SocketClient {
     const that = this;
 
     this.socket.addEventListener("open", () => that.onOpen());
-    this.socket.addEventListener("message", (e) => that.onMessage(e));
-    this.socket.addEventListener("close", (e) => that.onClose(e));
-    this.socket.addEventListener("error", (e) => that.onError(e));
+    this.socket.addEventListener("message", (event) => that.onMessage(event));
+    this.socket.addEventListener("close", (event) => that.onClose(event));
+    this.socket.addEventListener("error", (event) => that.onError(event));
   }
 
   public readonly readyState = () => this.socket?.readyState;
@@ -99,20 +102,24 @@ export class SocketClient {
   public sendMessage(message: IMessage) {
     const serialized = SocketClient.serialize(message);
     this.socket.send(serialized);
+    this.logger.info(`${SocketClient.logHeader}[SEND]`, message.command);
     this.logger.debug(`${SocketClient.logHeader}[SEND]`, message);
   }
 
   // called when client receives a message
   private onMessage(event: any) {
     const message: IMessage = SocketClient.deserialize(event.data);
+    this.logger.info(`${SocketClient.logHeader}[RECEIVE]`, message.command);
     this.logger.debug(`${SocketClient.logHeader}[RECEIVE]`, message);
 
     switch (message.command) {
       case "executeGraphResult":
         vscode.commands.executeCommand("hamilton.update", message.details.graph);
+        break
 
       case "error":
         this.logger.error(`${SocketClient.logHeader} Error from server`, message);
+        break
     }
   }
 
@@ -127,18 +134,15 @@ export class SocketClient {
 
   // called when server closes
   private onClose(event: any) {
-    if (this.socket) {
-      this.logger.error(`${SocketClient.logHeader} disconnected`);
-    }
+    this.logger.error(`${SocketClient.logHeader} disconnected`);
 
-    this.logger.info(`${SocketClient.logHeader} reconnecting...`);
-    this.socket = new WebSocket(this.url);
-    this.bindListeners();
+    // this.logger.info(`${SocketClient.logHeader} reconnecting...`);
+    // this.socket = new WebSocket(this.url);
+    // this.bindListeners();
 
     setTimeout(() => {
-      this.socket.close();
-    }, 1000);
-    this.logger.info(`${SocketClient.logHeader} finally closing`);
+      this.logger.info(`${SocketClient.logHeader} finally closing`)
+    });
   }
 
   private onError(error: any) {

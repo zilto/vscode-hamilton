@@ -6,19 +6,21 @@ import logging
 from pathlib import Path
 import sys
 from typing import List, Set
-import websockets
+
 
 try:
     from hamilton.graph import FunctionGraph
     from hamilton import node
     import networkx
+    import websockets
 except ModuleNotFoundError as e:
     raise e
 
 
-logger = logging.getLogger('websockets')
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
+# uncomment to debug websockets during development
+# logger = logging.getLogger('websockets')
+# logger.setLevel(logging.DEBUG)
+# logger.addHandler(logging.StreamHandler())
 
 
 @dataclass(frozen=True)
@@ -123,13 +125,14 @@ async def server_handler(websocket):
                     command="executeGraphResult",
                     details={"graph": json_graph}
                 )
+                
             else:
                 raise UnknownEventType
 
         except Exception as e:
             out_event = dict(
                 command="error",
-                details={"in_event_type": in_event['command'], "error": str(e)},
+                details={"error": str(e)},
             )
 
         finally:
