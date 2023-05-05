@@ -87,7 +87,7 @@ const cyStylesheet: cytoscape.Stylesheet[] = [
   {
     selector: "node.validator",
     style: {
-      label: (element) => {return element.data("label").split(element.data("parent") + "_")[1]},
+      label: (element) => element.data("label").split(element.data("parent") + "_")[1],
       shape: "round-rectangle",
       width: "label",
       "border-width": 0,
@@ -110,7 +110,7 @@ const cyStylesheet: cytoscape.Stylesheet[] = [
   {
     selector: "node.module",
     style: {
-      label: (element) => {return "Module: " + element.data("label")},
+      label: (element) => "Module: " + element.data("label"),
       shape: "round-rectangle",
       width: "label",
       "text-valign": "top",
