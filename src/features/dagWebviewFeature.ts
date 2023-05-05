@@ -1,13 +1,16 @@
 import * as vscode from "vscode";
 import { getNonce } from "../utils/getNonce";
 import { getUri } from "../utils/getUri";
-import { Message, DagSaveMessage } from "../messages";
+import { IMessage, DagSaveMessage } from "../messages";
 
-export class dagWebviewProvider implements vscode.WebviewViewProvider {
+class DagWebviewProvider implements vscode.WebviewViewProvider {
   public static readonly viewId = "hamilton.DAG_webview";
+  private readonly _extensionUri: vscode.Uri;
   public _view?: vscode.WebviewView;
 
-  constructor(private readonly _extensionUri: vscode.Uri) {}
+  constructor(context: vscode.ExtensionContext) {
+    this._extensionUri = context.extensionUri;
+  }
 
   public resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -23,7 +26,7 @@ export class dagWebviewProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.html = this._getWebviewContent(webviewView.webview, this._extensionUri);
 
-    webviewView.webview.onDidReceiveMessage((message: Message) => {
+    webviewView.webview.onDidReceiveMessage((message: IMessage) => {
       switch (message.command) {
         case "save":
           this.handleSave(message);
@@ -31,25 +34,10 @@ export class dagWebviewProvider implements vscode.WebviewViewProvider {
     }, undefined);
   }
 
-  public update(data: any) {
-    this._view?.webview.postMessage({ command: "update", details: data });
-  }
-
-  public rotate() {
-    this._view?.webview.postMessage({ command: "rotate", details: null });
-  }
-
-  public save() {
-    let format = "svg";
-    this._view?.webview.postMessage({ command: "save", details: { format: format } });
-  }
-
-  public expandAll() {
-    this._view?.webview.postMessage({ command: "expandAll", details: null });
-  }
-
-  public collapseAll() {
-    this._view?.webview.postMessage({ command: "collapseAll", details: null });
+  public postMessage(message: IMessage) {
+    if (this._view?.webview) {
+      this._view?.webview.postMessage(message);
+    }
   }
 
   private handleSave(message: DagSaveMessage) {
@@ -64,7 +52,7 @@ export class dagWebviewProvider implements vscode.WebviewViewProvider {
       .then((uri) => vscode.workspace.fs.writeFile(uri, content));
   }
 
-  _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri) {
+  public _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri) {
     const webviewUri = getUri(webview, extensionUri, ["out", "webview.js"]);
     const nonce = getNonce();
     return (
@@ -94,5 +82,37 @@ export class dagWebviewProvider implements vscode.WebviewViewProvider {
       </html>
     `
     );
+  }
+}
+
+export class DagWebviewFeature implements vscode.Disposable {
+  private dagWebviewProvider: DagWebviewProvider;
+
+  constructor(context: vscode.ExtensionContext) {
+    this.dagWebviewProvider = new DagWebviewProvider(context);
+
+    context.subscriptions.push(
+      vscode.window.registerWebviewViewProvider(DagWebviewProvider.viewId, this.dagWebviewProvider),
+      vscode.commands.registerCommand("hamilton.update", (data) => {
+        this.dagWebviewProvider.postMessage({ command: "update", details: data });
+      }),
+      vscode.commands.registerCommand("hamilton.rotate", () => {
+        this.dagWebviewProvider.postMessage({ command: "rotate", details: null });
+      }),
+      vscode.commands.registerCommand("hamilton.save", () => {
+        let format = "svg";
+        this.dagWebviewProvider.postMessage({ command: "save", details: { format: format } });
+      }),
+      vscode.commands.registerCommand("hamilton.expandAll", () =>
+        this.dagWebviewProvider.postMessage({ command: "expandAll", details: null }),
+      ),
+      vscode.commands.registerCommand("hamilton.collapseAll", () =>
+        this.dagWebviewProvider.postMessage({ command: "collapseAll", details: null }),
+      ),
+    );
+  }
+
+  public dispose(): any {
+    return undefined;
   }
 }

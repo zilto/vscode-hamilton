@@ -1,11 +1,11 @@
 import cytoscape from "cytoscape";
 
-export interface Message {
-  command: "update" | "rotate" | "save";
+export interface IMessage {
+  command: string;
   details: any;
 }
 
-export interface DagUpdateMessage extends Message {
+export interface DagUpdateMessage extends IMessage {
   command: "update";
   details: {
     data: Array<string[]>;
@@ -15,12 +15,12 @@ export interface DagUpdateMessage extends Message {
   };
 }
 
-export interface DagRotateMessage extends Message {
+export interface DagRotateMessage extends IMessage {
   command: "rotate";
   details: void;
 }
 
-export interface DagSaveMessage extends Message {
+export interface DagSaveMessage extends IMessage {
   command: "save";
   details: {
     format: "svg" | "png";
