@@ -4,6 +4,7 @@ import { PythonWebSocketsFeatures } from "./features/pythonServerFeature";
 import { ModuleTreeviewFeature } from "./features/moduleTreeviewFeature";
 import { DagWebviewFeature } from "./features/dagWebviewFeature";
 import { CacheProvider } from "./features/cacheFeature";
+import { DataframeWebviewFeature } from "./features/dataframeWebviewFeature";
 
 let extensionFeatures: any[];
 
@@ -15,6 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
     new PythonWebSocketsFeatures(context, moduleCache, logger),
     new ModuleTreeviewFeature(context, moduleCache),
     new DagWebviewFeature(context),
+    new DataframeWebviewFeature(context),
   ];
 }
 

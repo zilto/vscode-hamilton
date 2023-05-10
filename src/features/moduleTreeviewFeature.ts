@@ -18,15 +18,30 @@ class PythonFileTreeItem extends Item {
   };
 }
 
+// collapsibleState needs to be `Expaned` to load the FunctionTreeItem
+// this is necessary to cache the function symbols information for other features
 class ModuleTreeItem extends Item {
   contextValue = "pythonModule";
-  collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+  collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
   iconPath = new vscode.ThemeIcon("file");
   command = {
     command: "vscode.open",
     title: "Go to module",
     arguments: [this.resourceUri],
   };
+}
+
+async function getHamiltonFunctions(uri: vscode.Uri): Promise<vscode.SymbolInformation[]|undefined>{
+  const symbols: vscode.SymbolInformation[] = await vscode.commands.executeCommand(
+    "vscode.executeDocumentSymbolProvider", uri,
+  );
+  if (!symbols) {
+    return [];
+  }
+
+  // filter symbols to Functions, with names not starting with "_" (private functions in Python)
+  const filteredSymbols = symbols.filter((s) => s.kind === vscode.SymbolKind.Function && !s.name.startsWith("_"));
+  return filteredSymbols
 }
 
 class FunctionTreeItem extends Item {
@@ -95,17 +110,12 @@ class ModulesProvider implements vscode.TreeDataProvider<Item> {
 
     // triggers on recursive calls; get all python functions in python files
     else if (element && element instanceof ModuleTreeItem) {
-      const symbols: vscode.SymbolInformation[] = await vscode.commands.executeCommand(
-        "vscode.executeDocumentSymbolProvider",
-        element.resourceUri,
-      );
-      if (!symbols) {
+      const symbols = await getHamiltonFunctions(element.resourceUri)
+      if (!symbols){
         return [];
       }
 
-      // filter symbols to Functions, with names not starting with "_" (private functions in Python)
-      const filteredSymbols = symbols.filter((s) => s.kind === vscode.SymbolKind.Function && !s.name.startsWith("_"));
-      return filteredSymbols.map((symbol) => new FunctionTreeItem(element.resourceUri, symbol));
+      return symbols.map((symbol) => new FunctionTreeItem(element.resourceUri, symbol));
     }
     return [];
   }
