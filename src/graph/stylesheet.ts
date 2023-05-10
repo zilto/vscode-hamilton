@@ -18,7 +18,7 @@ function getCodeStyles(styles: string[]): CodeStyles {
     .reduce((obj, current) => ({ ...obj, ...{ [current.key]: current.val } }), {});
 }
 
-const codeStyles = getCodeStyles([
+export const codeStyles = getCodeStyles([
   "--vscode-editor-selectionHighlightBackground",
   "--vscode-editor-selectionBackground",
   "--vscode-symbolIcon-classForeground",
