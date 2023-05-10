@@ -27,10 +27,6 @@ class DataframeWebviewProvider implements vscode.WebviewViewProvider {
     webviewView.webview.html = this._getWebviewContent(webviewView.webview, this._extensionUri);
 
     webviewView.webview.onDidReceiveMessage((message: IMessage) => {
-      switch (message.command) {
-        case SocketCommand.getDataFrame:
-          break
-      }
     }, undefined);
   }
 
@@ -45,6 +41,7 @@ class DataframeWebviewProvider implements vscode.WebviewViewProvider {
     const cssUri = getUri(webview, extensionUri, ["out", "dataframe.css"])
     
     const nonce = getNonce();
+    // <link href="${cssUri}" rel="stylesheet">
     return (
       /*html*/
       `
