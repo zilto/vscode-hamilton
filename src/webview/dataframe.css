@@ -1,0 +1,36 @@
+.dataframe {
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-size: 0.9em;
+  font-family: sans-serif;
+  min-width: 100px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.dataframe thead tr {
+  background-color: #FF6F59;
+  color: #F3F3F3;
+  text-align: left;
+}
+
+.dataframe th,
+.dataframe td {
+  padding: 8px 8px;
+}
+
+.dataframe tbody tr {
+  border-bottom: thin solid #819595;
+}
+
+.dataframe tr:nth-of-type(even) {
+  background-color: #333333;
+}
+
+.dataframe tbody tr:last-of-type {
+  border-bottom: thin solid #819595;
+}
+
+.dataframe tbody tr.active-row {
+  font-weight: bold;
+  color: #FF6F59;
+}

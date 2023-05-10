@@ -1,18 +1,21 @@
 import * as vscode from "vscode";
 import { EXTENSION_NAME } from "../constants";
 
-interface CacheState {
+interface ICacheState {
   [key: string]: any;
 }
 
 export class CacheProvider {
   private readonly cacheKey: string;
   private static instance: CacheProvider;
-  private cache: CacheState;
+  private cache: ICacheState;
 
-  constructor(private context: vscode.ExtensionContext, cacheKey: string) {
+  constructor(
+    private context: vscode.ExtensionContext,
+    cacheKey: string
+  ) {
     this.cacheKey = `${EXTENSION_NAME}.${cacheKey}`;
-    this.cache = this.context.globalState.get<CacheState>(this.cacheKey, {});
+    this.cache = this.context.globalState.get<ICacheState>(this.cacheKey, {});
   }
 
   public static getInstance(context: vscode.ExtensionContext, cacheKey: string): CacheProvider {
@@ -24,7 +27,7 @@ export class CacheProvider {
   }
 
   // read the vscode workspace storage state; <Memento> type
-  public get(): CacheState {
+  public get(): ICacheState {
     return this.cache;
   }
 

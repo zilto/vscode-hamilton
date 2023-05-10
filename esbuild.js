@@ -31,20 +31,29 @@ const watchConfig = {
   },
 };
 
-const webviewConfig = {
+const dagWebviewConfig = {
   ...baseConfig,
   target: "es2020",
   format: "esm",
-  entryPoints: ["./src/webview/main.ts"],
-  outfile: "./out/webview.js",
+  entryPoints: ["./src/webview/dagScript.ts"],
+  outfile: "./out/dagScript.js",
 };
+
+const dataframeWebviewConfig = {
+  ...baseConfig,
+  target: "es2020",
+  format: "esm",
+  entryPoints: ["./src/webview/dataframeScript.ts"],
+  outfile: "./out/dataframeScript.js",
+};
+
 
 const rendererConfig = {
   ...baseConfig,
   target: "es2020",
   format: "esm",
-  entryPoints: ["./src/notebook/renderer.ts"],
-  outfile: "./out/renderer.js",
+  entryPoints: ["./src/renderer/dagRenderer.ts"],
+  outfile: "./out/dagRenderer.js",
 };
   
 (async () => {
@@ -58,7 +67,11 @@ const rendererConfig = {
         ...watchConfig,
       });
       await build({
-        ...webviewConfig,
+        ...dagWebviewConfig,
+        ...watchConfig,
+      });
+      await build({
+        ...dataframeWebviewConfig,
         ...watchConfig,
       });
       await build({
@@ -69,7 +82,7 @@ const rendererConfig = {
     } else {
       // Build extension and webview code
       await build(extensionConfig);
-      await build(webviewConfig);
+      await build(dagWebviewConfig);
       console.log("build complete");
     }
   } catch (err) {

@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { WebSocket } from "ws";
-import { IMessage } from "../messages";
+import { IMessage, SocketCommand } from "../messages";
 import { spawn, ChildProcess } from "child_process";
 import { SocketsConfiguration } from "../configuration";
 import { CacheProvider } from "./cacheFeature";
@@ -36,11 +36,11 @@ export class SocketServer {
       this.logger.debug(`${SocketServer.logHeader} an instance has already started`);
       return;
     }
-
   
     this.process = spawn(this.pythonPath, [this.serverPath]);
     this.logger.info(`${SocketServer.logHeader} started`);
 
+    // TODO replace by .bind() notation
     const that = this;
 
     this.process.stdout?.on("data", (data) => {
@@ -81,6 +81,7 @@ export class SocketClient {
   private bindListeners() {
     // ensure `this` refers to SocketClient object, and not WebSocket;
     // ref: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#the_value_of_this_within_the_handler
+    // TODO replace by .bind() notation
     const that = this;
 
     this.socket.addEventListener("open", () => that.onOpen());
@@ -113,7 +114,10 @@ export class SocketClient {
     this.logger.debug(`${SocketClient.logHeader}[RECEIVE]`, message);
 
     switch (message.command) {
-      case "executeGraphResult":
+      case SocketCommand.getDataFrame:
+        vscode.commands.executeCommand("hamilton.dataframe", message.details.dataframe)
+
+      case SocketCommand.executeGraph:
         vscode.commands.executeCommand("hamilton.update", message.details.graph);
         break
 
@@ -177,14 +181,19 @@ export class PythonWebSocketsFeatures implements vscode.Disposable {
           return;
         }
 
-        // the object properties name need to match the Python ScriptConfig dataclass properties
-        const scriptConfig = {
-          module_file_paths: this.moduleCache.values().map((uri) => pathToPosix(uri.path)),
-          upstream_nodes: [],
-          downstream_nodes: [],
-        };
-
-        this.client.sendMessage({ command: "executeGraph", details: scriptConfig });
+        // the details property name need to match the Python ScriptConfig dataclass properties
+        this.client.sendMessage({
+          command: SocketCommand.getDataFrame,
+          details: {
+            module_file_paths: this.moduleCache.values().map((uri) => pathToPosix(uri.path)),
+            upstream_nodes: [],
+            downstream_nodes: [],
+            input_file_paths: [
+              vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, "./hamilton_data.json").path,
+            ],
+            output_columns: ["avg_3wk_spend", "spend_std_dev"],
+          }
+        });
       }),
     );
   }

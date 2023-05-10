@@ -7,9 +7,9 @@ from pathlib import Path
 import sys
 from typing import List, Set
 
-
 try:
     from hamilton.graph import FunctionGraph
+    from hamilton.driver import Driver
     from hamilton import node
     import networkx
     import websockets
@@ -26,25 +26,25 @@ except ModuleNotFoundError as e:
 @dataclass(frozen=True)
 class ExecuteGraphConfig:
     module_file_paths: List[str]
-    upstream_nodes: list = field(default_factory=list)
-    downstream_nodes: list = field(default_factory=list)
+    upstream_nodes: List[str] = field(default_factory=list)
+    downstream_nodes: List[str] = field(default_factory=list)
     graph_config: dict = field(default_factory=dict)
+    input_file_paths: List[str] = field(default_factory=list)
+    output_columns: List[str] = field(default_factory=list)
 
 
 class UnknownEventType(Exception):
     "Raised when server event type is not registered"
 
-
 def _create_networkx_graph(
     nodes: Set[node.Node], user_nodes: Set[node.Node], name: str
-) -> "networkx.DiGraph":  # noqa: F821
+) -> networkx.DiGraph:  # noqa: F821
     """Helper function to create a networkx graph.
     :param nodes: The set of computational nodes
     :param user_nodes: The set of nodes that the user is providing inputs for.
     :param name: The name to have on the graph.
     :return: a graphviz.Digraph; use this to render/save a graph representation.
     """
-    import networkx
 
     def _node_representation(node) -> dict:
         base = dict(
@@ -101,6 +101,22 @@ def serialize_graph(nodes: Set[node.Node], graph_name: str = "vscode-hamilton"):
     return cytoscape_json
 
 
+def load_inputs(file_paths: List[str]) -> dict:
+    import pandas as pd
+
+    inputs = {}
+    for file_path in file_paths:
+        # TODO add handler to load different filetypes
+        df = pd.read_json(file_path)
+        for k, v in df.to_dict(orient="series").items():
+            if k in inputs:
+                raise KeyError("Duplicate keys in data sources in `load_inputs`")
+            
+            inputs[k] = v
+
+    return inputs
+
+
 async def server_handler(websocket):
     async for message in websocket:
         in_event = json.loads(message)
@@ -122,8 +138,29 @@ async def server_handler(websocket):
                 json_graph = serialize_graph(selected_nodes)
 
                 out_event = dict(
-                    command="executeGraphResult",
+                    command="executeGraph",
                     details={"graph": json_graph}
+                )
+
+            elif command == "getDataFrame":
+                cfg = ExecuteGraphConfig(**in_event["details"])
+
+                modules = import_modules(cfg.module_file_paths)
+                driver = Driver({}, *modules)
+
+                selected_nodes = select_nodes(driver.graph, cfg.downstream_nodes, cfg.upstream_nodes)
+                json_graph = serialize_graph(selected_nodes)
+
+                inputs = load_inputs(cfg.input_file_paths)
+                outputs = [node.name for node in selected_nodes]
+                results = driver.execute(final_vars=outputs, inputs=inputs)
+
+                out_event = dict(
+                    command="getDataFrame",
+                    details={
+                        "graph": json_graph,
+                        "dataframe": results.to_html(),
+                    }
                 )
                 
             else:
