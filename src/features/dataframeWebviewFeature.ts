@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { getNonce } from "../utils/getNonce";
 import { getUri } from "../utils/getUri";
-import { IMessage, SocketCommand } from "../messages";
+import { IMessage, DataframeCommand } from "../messages";
 
 class DataframeWebviewProvider implements vscode.WebviewViewProvider {
   public static readonly viewId = "hamilton.Dataframe_webview";
@@ -26,8 +26,7 @@ class DataframeWebviewProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.html = this._getWebviewContent(webviewView.webview, this._extensionUri);
 
-    webviewView.webview.onDidReceiveMessage((message: IMessage) => {
-    }, undefined);
+    webviewView.webview.onDidReceiveMessage((message: IMessage) => {}, undefined);
   }
 
   public postMessage(message: IMessage) {
@@ -35,13 +34,12 @@ class DataframeWebviewProvider implements vscode.WebviewViewProvider {
       this._view?.webview.postMessage(message);
     }
   }
-  
+
   public _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri) {
     const scriptUri = getUri(webview, extensionUri, ["out", "dataframeScript.js"]);
-    const cssUri = getUri(webview, extensionUri, ["out", "dataframe.css"])
-    
+    const cssUri = getUri(webview, extensionUri, ["out", "dataframe.css"]);
+
     const nonce = getNonce();
-    // <link href="${cssUri}" rel="stylesheet">
     return (
       /*html*/
       `
@@ -72,9 +70,9 @@ export class DataframeWebviewFeature implements vscode.Disposable {
 
     context.subscriptions.push(
       vscode.window.registerWebviewViewProvider(DataframeWebviewProvider.viewId, this.dataframeWebviewProvider),
-      vscode.commands.registerCommand("hamilton.dataframe", (data) => {
-        this.dataframeWebviewProvider.postMessage({ command: SocketCommand.getDataFrame, details: data });
-      })
+      vscode.commands.registerCommand("hamilton.dataframe.update", (data) => {
+        this.dataframeWebviewProvider.postMessage({ command: DataframeCommand.update, details: data });
+      }),
     );
   }
 

@@ -19,12 +19,12 @@ window.addEventListener("message", (event) => {
       break;
 
     case DagCommand.save:
-      const content = graph.save(message.details.format)
+      const content = graph.save(message.details.format);
       // postMessage exits the webview context and accesses the extension host
       vscode.postMessage({
         command: "save",
         details: { content: content, format: message.details.format },
-      });;
+      });
       break;
 
     case DagCommand.expandAll:

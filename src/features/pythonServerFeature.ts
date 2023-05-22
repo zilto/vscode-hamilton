@@ -25,7 +25,7 @@ export class SocketServer {
     if (!SocketServer.instance) {
       SocketServer.instance = new SocketServer(config, logger);
 
-      logger.info(`${SocketServer.logHeader} instantiating`, config);
+      logger.info(`${SocketServer.logHeader} instantiating`, JSON.stringify(config, null, 2));
     }
 
     return SocketServer.instance;
@@ -36,7 +36,7 @@ export class SocketServer {
       this.logger.debug(`${SocketServer.logHeader} an instance has already started`);
       return;
     }
-  
+
     this.process = spawn(this.pythonPath, [this.serverPath]);
     this.logger.info(`${SocketServer.logHeader} started`);
 
@@ -104,26 +104,26 @@ export class SocketClient {
     const serialized = SocketClient.serialize(message);
     this.socket.send(serialized);
     this.logger.info(`${SocketClient.logHeader}[SEND]`, message.command);
-    this.logger.debug(`${SocketClient.logHeader}[SEND]`, message);
+    this.logger.debug(`${SocketClient.logHeader}[SEND]`, JSON.stringify(message, null, 2));
   }
 
   // called when client receives a message
   private onMessage(event: any) {
     const message: IMessage = SocketClient.deserialize(event.data);
     this.logger.info(`${SocketClient.logHeader}[RECEIVE]`, message.command);
-    this.logger.debug(`${SocketClient.logHeader}[RECEIVE]`, message);
+    this.logger.debug(`${SocketClient.logHeader}[RECEIVE]`, JSON.stringify(message, null, 2));
 
     switch (message.command) {
-      case SocketCommand.getDataFrame:
-        vscode.commands.executeCommand("hamilton.dataframe", message.details.dataframe)
+      case SocketCommand.executeDAG:
+        vscode.commands.executeCommand("hamilton.dataframe.update", message.details.dataframe);
 
-      case SocketCommand.executeGraph:
-        vscode.commands.executeCommand("hamilton.update", message.details.graph);
-        break
+      case SocketCommand.compileDAG:
+        vscode.commands.executeCommand("hamilton.graph.update", message.details.graph);
+        break;
 
       case "error":
-        this.logger.error(`${SocketClient.logHeader} Error from server`, message);
-        break
+        this.logger.error(`${SocketClient.logHeader} Error from server`, JSON.stringify(message, null, 2));
+        break;
     }
   }
 
@@ -140,12 +140,8 @@ export class SocketClient {
   private onClose(event: any) {
     this.logger.error(`${SocketClient.logHeader} disconnected`);
 
-    // this.logger.info(`${SocketClient.logHeader} reconnecting...`);
-    // this.socket = new WebSocket(this.url);
-    // this.bindListeners();
-
     setTimeout(() => {
-      this.logger.info(`${SocketClient.logHeader} finally closing`)
+      this.logger.info(`${SocketClient.logHeader} finally closing`);
     });
   }
 
@@ -178,21 +174,40 @@ export class PythonWebSocketsFeatures implements vscode.Disposable {
     context.subscriptions.push(
       vscode.commands.registerCommand("hamilton.compileDAG", () => {
         if (!this.client) {
+          vscode.window.showErrorMessage("Hamilton: No Python client started.");
           return;
         }
 
         // the details property name need to match the Python ScriptConfig dataclass properties
         this.client.sendMessage({
-          command: SocketCommand.getDataFrame,
+          command: SocketCommand.compileDAG,
           details: {
             module_file_paths: this.moduleCache.values().map((uri) => pathToPosix(uri.path)),
             upstream_nodes: [],
             downstream_nodes: [],
-            input_file_paths: [
-              vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, "./hamilton_data.json").path,
-            ],
-            output_columns: ["avg_3wk_spend", "spend_std_dev"],
-          }
+            config_path: vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, "./.hamilton").path,
+          },
+        });
+      }),
+    );
+
+    context.subscriptions.push(
+      vscode.commands.registerCommand("hamilton.executeDAG", () => {
+        if (!this.client) {
+          vscode.window.showErrorMessage("Hamilton: No Python client started.");
+          return;
+        }
+
+        // the details property name need to match the Python ScriptConfig dataclass properties
+        this.client.sendMessage({
+          command: SocketCommand.executeDAG,
+          details: {
+            module_file_paths: this.moduleCache.values().map((uri) => pathToPosix(uri.path)),
+            upstream_nodes: [],
+            downstream_nodes: [],
+            config_path: vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, "./.hamilton").path,
+            output_columns: ["avg_3wk_spend", "spend_zero_mean_unit_variance"],
+          },
         });
       }),
     );

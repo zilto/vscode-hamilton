@@ -7,5 +7,5 @@ src/**
 **/.eslintrc.json
 **/*.map
 **/*.ts
-webview-ui/
 test/
+**/__pycache__

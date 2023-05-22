@@ -10,10 +10,7 @@ export class CacheProvider {
   private static instance: CacheProvider;
   private cache: ICacheState;
 
-  constructor(
-    private context: vscode.ExtensionContext,
-    cacheKey: string
-  ) {
+  constructor(private context: vscode.ExtensionContext, cacheKey: string) {
     this.cacheKey = `${EXTENSION_NAME}.${cacheKey}`;
     this.cache = this.context.globalState.get<ICacheState>(this.cacheKey, {});
   }
@@ -24,11 +21,6 @@ export class CacheProvider {
     }
 
     return CacheProvider.instance;
-  }
-
-  // read the vscode workspace storage state; <Memento> type
-  public get(): ICacheState {
-    return this.cache;
   }
 
   // update the workspace storage state by overwriting it

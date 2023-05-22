@@ -4,8 +4,8 @@ import svg from "cytoscape-svg";
 import expandCollapse from "cytoscape-expand-collapse";
 import undoRedo from "cytoscape-undo-redo";
 
-import { layout } from "./layout"
-import { cyStylesheet} from "./stylesheet"
+import { layout } from "./layout";
+import { cyStylesheet } from "./stylesheet";
 
 // load extensions
 cytoscape.use(dagre);
@@ -48,7 +48,7 @@ export function init() {
     style: cyStylesheet,
     layout: layout,
     boxSelectionEnabled: false,
-  })
+  });
 
   cy.fit();
   bindCytoscapeEvents(cy);
@@ -72,7 +72,6 @@ function bindCytoscapeEvents(cy: cytoscape.Core) {
   cy.nodes().on("expandcollapse.beforecollapse", (event) => expandApi.collapse(event.target.children()));
   cy.nodes().on("expandcollapse.afterexpand", (event) => expandApi.expand(event.target.children()));
 }
-
 
 // TODO add batching
 export function update(message: any) {
@@ -122,10 +121,9 @@ export function rotate() {
     layout.rankDir = "TB";
   } else {
     layout.rankDir = "LR";
-  } 
+  }
   cy.layout(layout).run();
 }
-
 
 export function expandAll() {
   expandApi.expandAll();
@@ -135,11 +133,11 @@ export function collapseAll() {
   expandApi.collapseAll();
 }
 
-export function save(format: string): any{
+export function save(format: string): any {
   let content;
   switch (format) {
     case "svg":
       content = cy.svg();
   }
-  return content
+  return content;
 }

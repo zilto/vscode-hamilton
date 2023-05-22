@@ -23,7 +23,9 @@
   "extensionKind": [
     "workspace"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:python"
+  ],
   "main": "./out/extension.js",
   "configuration": {
     "title": "Hamilton",
@@ -207,9 +209,6 @@
         "displayName": "Hamilton Notebook",
         "selector": [
           {
-            "filenamePattern": "*.hamilton"
-          },
-          {
             "filenamePattern": "*.hamilton.ipynb"
           }
         ]
@@ -227,14 +226,13 @@
     ]
   },
   "scripts": {
-    "compile": "node ./esbuild.js",
+    "compile": "cd lsp && NODE_ENV=production node ./esbuild.js && cd .. && NODE_ENV=production node ./esbuild.js",
     "package": "NODE_ENV=production node ./esbuild.js",
     "watch": "node ./esbuild.js --watch",
     "pretty": "prettier --write \"src/**/*.ts\"",
     "vscode:prepublish": ""
   },
   "devDependencies": {
-    "@hediet/std": "^0.6.0",
     "@types/chai": "4.3.4",
     "@types/cytoscape": "^3.19.9",
     "@types/mocha": "^10.0.1",
@@ -267,5 +265,8 @@
   },
   "extensionDependencies": [
     "ms-python.python"
-  ]
+  ],
+  "dependencies": {
+    "vscode-languageclient": "^8.1.0"
+  }
 }

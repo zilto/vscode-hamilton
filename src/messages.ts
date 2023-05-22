@@ -13,16 +13,24 @@ export enum DagCommand {
   rotate,
   save,
   expandAll,
-  collapseAll
+  collapseAll,
 }
 
-type SocketCommand = "executeGraph" | "getDataFrame"
-export const SocketCommand = {
-  get executeGraph(): SocketCommand {return "executeGraph"},
-  get getDataFrame(): SocketCommand {return "getDataFrame"},
+export enum DataframeCommand {
+  update,
 }
+
+type SocketCommand = "compileDAG" | "executeDAG";
+export const SocketCommand = {
+  get compileDAG(): SocketCommand {
+    return "compileDAG";
+  },
+  get executeDAG(): SocketCommand {
+    return "executeDAG";
+  },
+};
 
 export interface IMessage {
-  command: DagCommand | SocketCommand;
+  command: DagCommand | SocketCommand | DataframeCommand;
   details: any;
 }

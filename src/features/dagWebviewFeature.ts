@@ -56,7 +56,6 @@ class DagWebviewProvider implements vscode.WebviewViewProvider {
   public _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri) {
     const scriptUri = getUri(webview, extensionUri, ["out", "dagScript.js"]);
 
-
     const nonce = getNonce();
     return (
       /*html*/
@@ -96,7 +95,7 @@ export class DagWebviewFeature implements vscode.Disposable {
 
     context.subscriptions.push(
       vscode.window.registerWebviewViewProvider(DagWebviewProvider.viewId, this.dagWebviewProvider),
-      vscode.commands.registerCommand("hamilton.update", (data) => {
+      vscode.commands.registerCommand("hamilton.graph.update", (data) => {
         this.dagWebviewProvider.postMessage({ command: DagCommand.update, details: data });
       }),
       vscode.commands.registerCommand("hamilton.rotate", () => {

@@ -5,16 +5,19 @@ import json
 import logging
 from pathlib import Path
 import sys
-from typing import List, Set
+from typing import List, Set, Optional
 
 try:
     from hamilton.graph import FunctionGraph
     from hamilton.driver import Driver
+    from hamilton.data_quality.base import ValidationResult
     from hamilton import node
     import networkx
     import websockets
 except ModuleNotFoundError as e:
     raise e
+
+from protocol import UnknownEventType
 
 
 # uncomment to debug websockets during development
@@ -29,12 +32,9 @@ class ExecuteGraphConfig:
     upstream_nodes: List[str] = field(default_factory=list)
     downstream_nodes: List[str] = field(default_factory=list)
     graph_config: dict = field(default_factory=dict)
-    input_file_paths: List[str] = field(default_factory=list)
+    config_path: Optional[str] = None
     output_columns: List[str] = field(default_factory=list)
 
-
-class UnknownEventType(Exception):
-    "Raised when server event type is not registered"
 
 def _create_networkx_graph(
     nodes: Set[node.Node], user_nodes: Set[node.Node], name: str
@@ -101,18 +101,16 @@ def serialize_graph(nodes: Set[node.Node], graph_name: str = "vscode-hamilton"):
     return cytoscape_json
 
 
-def load_inputs(file_paths: List[str]) -> dict:
+def load_inputs(config_path: str) -> dict:
     import pandas as pd
 
     inputs = {}
-    for file_path in file_paths:
-        # TODO add handler to load different filetypes
-        df = pd.read_json(file_path)
-        for k, v in df.to_dict(orient="series").items():
-            if k in inputs:
-                raise KeyError("Duplicate keys in data sources in `load_inputs`")
-            
-            inputs[k] = v
+    df = pd.read_json(config_path)
+    for k, v in df.to_dict(orient="series").items():
+        if k in inputs:
+            raise KeyError("Duplicate keys in data sources in `load_inputs`")
+        
+        inputs[k] = v
 
     return inputs
 
@@ -125,38 +123,35 @@ async def server_handler(websocket):
         try:
             if command == "ping":
                 out_event = dict(command="pong", details=None)
-
-            elif command == "registerModule":
-                cfg = ExecuteGraphConfig(**in_event["details"])
                 
-            elif command == "executeGraph":
+            elif command == "compileDAG":
                 cfg = ExecuteGraphConfig(**in_event["details"])
 
                 modules = import_modules(cfg.module_file_paths)
                 graph = FunctionGraph(*modules, config={})
-                selected_nodes = select_nodes(graph, cfg.downstream_nodes, cfg.upstream_nodes)
+                selected_nodes: Set[node.Node] = select_nodes(graph, cfg.downstream_nodes, cfg.upstream_nodes)
                 json_graph = serialize_graph(selected_nodes)
 
                 out_event = dict(
-                    command="executeGraph",
+                    command="compileDAG",
                     details={"graph": json_graph}
                 )
 
-            elif command == "getDataFrame":
+            elif command == "executeDAG":
                 cfg = ExecuteGraphConfig(**in_event["details"])
 
                 modules = import_modules(cfg.module_file_paths)
                 driver = Driver({}, *modules)
 
-                selected_nodes = select_nodes(driver.graph, cfg.downstream_nodes, cfg.upstream_nodes)
+                selected_nodes: Set[node.Node] = select_nodes(driver.graph, cfg.downstream_nodes, cfg.upstream_nodes)
                 json_graph = serialize_graph(selected_nodes)
 
-                inputs = load_inputs(cfg.input_file_paths)
-                outputs = [node.name for node in selected_nodes]
+                inputs = load_inputs(cfg.config_path)
+                outputs = [n.name for n in list(selected_nodes)]
                 results = driver.execute(final_vars=outputs, inputs=inputs)
 
                 out_event = dict(
-                    command="getDataFrame",
+                    command="executeDAG",
                     details={
                         "graph": json_graph,
                         "dataframe": results.to_html(),
@@ -169,7 +164,7 @@ async def server_handler(websocket):
         except Exception as e:
             out_event = dict(
                 command="error",
-                details={"error": str(e)},
+                details=e,
             )
 
         finally:
