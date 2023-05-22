@@ -47,7 +47,6 @@ const dataframeWebviewConfig = {
   outfile: "./out/dataframeScript.js",
 };
 
-
 const rendererConfig = {
   ...baseConfig,
   target: "es2020",
@@ -55,12 +54,11 @@ const rendererConfig = {
   entryPoints: ["./src/renderer/dagRenderer.ts"],
   outfile: "./out/dagRenderer.js",
 };
-  
+
 (async () => {
   const args = process.argv.slice(2);
   try {
     if (args.includes("--watch")) {
-      // Build and watch extension and webview code
       console.log("[watch] build started");
       await build({
         ...extensionConfig,
@@ -80,9 +78,10 @@ const rendererConfig = {
       });
       console.log("[watch] build finished");
     } else {
-      // Build extension and webview code
       await build(extensionConfig);
       await build(dagWebviewConfig);
+      await build(dataframeWebviewConfig);
+      await build(rendererConfig);
       console.log("build complete");
     }
   } catch (err) {

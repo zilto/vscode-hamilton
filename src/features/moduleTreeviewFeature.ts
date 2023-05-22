@@ -31,9 +31,10 @@ class ModuleTreeItem extends Item {
   };
 }
 
-async function getHamiltonFunctions(uri: vscode.Uri): Promise<vscode.SymbolInformation[]|undefined>{
+async function getHamiltonFunctions(uri: vscode.Uri): Promise<vscode.SymbolInformation[] | undefined> {
   const symbols: vscode.SymbolInformation[] = await vscode.commands.executeCommand(
-    "vscode.executeDocumentSymbolProvider", uri,
+    "vscode.executeDocumentSymbolProvider",
+    uri,
   );
   if (!symbols) {
     return [];
@@ -41,7 +42,7 @@ async function getHamiltonFunctions(uri: vscode.Uri): Promise<vscode.SymbolInfor
 
   // filter symbols to Functions, with names not starting with "_" (private functions in Python)
   const filteredSymbols = symbols.filter((s) => s.kind === vscode.SymbolKind.Function && !s.name.startsWith("_"));
-  return filteredSymbols
+  return filteredSymbols;
 }
 
 class FunctionTreeItem extends Item {
@@ -110,8 +111,8 @@ class ModulesProvider implements vscode.TreeDataProvider<Item> {
 
     // triggers on recursive calls; get all python functions in python files
     else if (element && element instanceof ModuleTreeItem) {
-      const symbols = await getHamiltonFunctions(element.resourceUri)
-      if (!symbols){
+      const symbols = await getHamiltonFunctions(element.resourceUri);
+      if (!symbols) {
         return [];
       }
 
