@@ -10,6 +10,7 @@ export class SocketsConfiguration {
 
   constructor(context: vscode.ExtensionContext) {
     const extension = vscode.extensions.getExtension("ms-python.python");
+    
     this.pythonPath = extension?.exports.settings.getExecutionDetails().execCommand?.join("");
     this.pythonServerPath = pathToPosix(context.asAbsolutePath(path.join("pythonServer", "server.py")));
     this.host = "127.0.0.1"; //vscode.workspace.getConfiguration("hamilton.sockets").get("host")

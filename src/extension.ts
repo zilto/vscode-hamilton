@@ -5,6 +5,7 @@ import { ModuleTreeviewFeature } from "./features/moduleTreeviewFeature";
 import { DagWebviewFeature } from "./features/dagWebviewFeature";
 import { CacheProvider } from "./features/cacheFeature";
 import { DataframeWebviewFeature } from "./features/dataframeWebviewFeature";
+import { SupportLinksFeature } from "./features/supportLinksFeature";
 
 let extensionFeatures: any[];
 
@@ -21,6 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
     new ModuleTreeviewFeature(context, moduleCache),
     new DagWebviewFeature(context),
     new DataframeWebviewFeature(context),
+    new SupportLinksFeature(),
   ];
 }
 

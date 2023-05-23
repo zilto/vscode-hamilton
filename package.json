@@ -7,7 +7,7 @@
   "author": {
     "name": "Thierry Jean"
   },
-  "version": "0.2.0",
+  "version": "0.2.1",
   "engines": {
     "vscode": "^1.77.0"
   },
@@ -135,6 +135,11 @@
           "id": "hamilton.pythonFiles_treeview",
           "name": "Python files",
           "when": "true"
+        },
+        {
+          "id": "hamilton.supportLinks_treeview",
+          "name": "Support",
+          "when": "true"
         }
       ],
       "hamilton-panel": [
@@ -237,8 +242,8 @@
     ],
     "viewsWelcome": [
       {
-        "view": "hamilton.modules_treeview",
-        "contents": "[View walkthrough](command:welcome.showAllWalkthroughs)"
+        "view": "hamilton.supportLinks_treeview",
+        "contents": "[$(book)Walkthrough](command:welcome.showAllWalkthroughs)\n[$(github)Hamilton docs](https://hamilton.readthedocs.io/en/latest/)\n[$(comment-discussion)Slack](https://join.slack.com/t/hamilton-opensource/shared_invite/zt-1bjs72asx-wcUTgH7q7QX1igiQ5bbdcg)"
       }
     ],
     "walkthroughs": [
