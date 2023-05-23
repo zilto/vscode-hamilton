@@ -10,6 +10,10 @@ let extensionFeatures: any[];
 
 export function activate(context: vscode.ExtensionContext) {
   const logger = vscode.window.createOutputChannel(EXTENSION_NAME, { log: true });
+  context.subscriptions.push(
+    vscode.commands.registerCommand("hamilton.logger.focus", () => logger.show())
+  )
+
   const moduleCache: CacheProvider = CacheProvider.getInstance(context, "moduleCache");
 
   extensionFeatures = [

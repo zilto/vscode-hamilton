@@ -185,30 +185,36 @@ export class PythonWebSocketsFeatures implements vscode.Disposable {
             module_file_paths: this.moduleCache.values().map((uri) => pathToPosix(uri.path)),
             upstream_nodes: [],
             downstream_nodes: [],
-            config_path: vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, "./.hamilton").path,
+            config_path: "",
           },
         });
       }),
     );
 
     context.subscriptions.push(
-      vscode.commands.registerCommand("hamilton.executeDAG", () => {
+      vscode.commands.registerCommand("hamilton.executeDAG", async () => {
         if (!this.client) {
           vscode.window.showErrorMessage("Hamilton: No Python client started.");
           return;
         }
-
-        // the details property name need to match the Python ScriptConfig dataclass properties
-        this.client.sendMessage({
-          command: SocketCommand.executeDAG,
-          details: {
-            module_file_paths: this.moduleCache.values().map((uri) => pathToPosix(uri.path)),
-            upstream_nodes: [],
-            downstream_nodes: [],
-            config_path: vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, "./.hamilton").path,
-            output_columns: ["avg_3wk_spend", "spend_zero_mean_unit_variance"],
-          },
-        });
+        const configUri = vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, "./.hamilton")
+        try {
+          let stats = await vscode.workspace.fs.stat(configUri)
+          // the details property name need to match the Python ScriptConfig dataclass properties
+          this.client.sendMessage({
+            command: SocketCommand.executeDAG,
+            details: {
+              module_file_paths: this.moduleCache.values().map((uri) => pathToPosix(uri.path)),
+              upstream_nodes: [],
+              downstream_nodes: [],
+              config_path: configUri.path,
+              output_columns: [],
+            },
+          })
+        } catch {
+          vscode.commands.executeCommand("hamilton.compileDAG")
+          vscode.window.showWarningMessage("`executeDAG` failed. `.hamilton` not found.")
+        }
       }),
     );
   }

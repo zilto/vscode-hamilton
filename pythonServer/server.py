@@ -164,7 +164,7 @@ async def server_handler(websocket):
         except Exception as e:
             out_event = dict(
                 command="error",
-                details=e,
+                details=str(e),
             )
 
         finally:
