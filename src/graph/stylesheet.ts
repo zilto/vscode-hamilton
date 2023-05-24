@@ -12,7 +12,6 @@ function getCodeStyles(styles: string[]): CodeStyles {
     ?.split(";")
     .map((str) => {
       const [key, val] = str.trim().split(":");
-      console.log(key)
       return { key, val };
     })
     .filter((obj) => styles.includes(obj.key))
@@ -117,6 +116,16 @@ export const cyStylesheet: cytoscape.Stylesheet[] = [
       "target-arrow-color": codeStyles["--vscode-editor-selectionHighlightBackground"],
       "line-color": codeStyles["--vscode-editor-selectionHighlightBackground"],
       width: 5,
+    },
+  },
+  {
+    selector: "node.highlight",
+    style: {}
+  },
+  {
+    selector: ".faded",
+    style: {
+      opacity: 0.3,
     },
   },
 ];
