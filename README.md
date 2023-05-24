@@ -1,5 +1,7 @@
 # Hamilton - VSCode extension (unofficial)
 
+![](resources/vscode-hamilton-banner.jpg)
+
 ## Get started
 Go through the VSCode walkthrough by viewing the command palet (`CTRL+P`) and using command `Welcome: Open Walkthrough...`
 
