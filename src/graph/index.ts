@@ -15,7 +15,7 @@ expandCollapse(cytoscape);
 
 var expandApi: any;
 
-var cy: cytoscape.Core;
+export var cy: cytoscape.Core;
 
 export function init() {
   cy = cytoscape({
@@ -60,6 +60,7 @@ export function init() {
   });
 }
 
+// TODO events that need to interact with VSCode are bound in webview/dagScripts.ts/init
 function bindCytoscapeEvents(cy: cytoscape.Core) {
   cy.on("dblclick", () => cy.fit());
   cy.on("resize", () => cy.fit());

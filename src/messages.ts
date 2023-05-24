@@ -14,6 +14,7 @@ export enum DagCommand {
   save,
   expandAll,
   collapseAll,
+  goToDefinition,
 }
 
 export enum DataframeCommand {

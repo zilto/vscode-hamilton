@@ -18,7 +18,7 @@ class PythonFileTreeItem extends Item {
   };
 }
 
-// collapsibleState needs to be `Expaned` to load the FunctionTreeItem
+// collapsibleState needs to be `Expanded` to load the FunctionTreeItem
 // this is necessary to cache the function symbols information for other features
 class ModuleTreeItem extends Item {
   contextValue = "pythonModule";

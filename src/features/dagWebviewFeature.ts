@@ -31,6 +31,11 @@ class DagWebviewProvider implements vscode.WebviewViewProvider {
       switch (message.command) {
         case DagCommand.save:
           this.handleSave(message);
+          break
+        
+        case DagCommand.goToDefinition:
+          this.goToDefinition(message)
+          break
       }
     }, undefined);
   }
@@ -53,8 +58,29 @@ class DagWebviewProvider implements vscode.WebviewViewProvider {
       .then((uri) => vscode.workspace.fs.writeFile(uri, content));
   }
 
+  private async goToDefinition(message: IMessage){
+    const moduleUri = await vscode.workspace.findFiles(`**/${message.details.module}.py`).then(uris => uris[0])
+              
+    const symbols: vscode.SymbolInformation[] = await vscode.commands.executeCommand("vscode.executeDocumentSymbolProvider", moduleUri)
+  
+    const requestedSymbol = symbols.filter(s => s.name === message.details.name)[0]
+    if (!requestedSymbol){
+      vscode.window.showWarningMessage(`Requested function ${message.details.name} not found in module ${message.details.module}`)
+      return;
+    }
+  
+    vscode.commands.executeCommand("editor.action.goToLocations",
+      moduleUri,
+      new vscode.Position(0, 0),
+      [requestedSymbol.location],
+      "goto",
+      "Not found"
+    )
+  }
+
   public _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri) {
     const scriptUri = getUri(webview, extensionUri, ["out", "dagScript.js"]);
+    const cssUri = getUri(webview, extensionUri, ["out", "dag.css"]);
 
     const nonce = getNonce();
     return (
@@ -66,6 +92,7 @@ class DagWebviewProvider implements vscode.WebviewViewProvider {
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Hamilton: DAG Viewer</title>
+          <link href="${cssUri}" rel="stylesheet">
           <style>
             #cy {
               width: 100%;
