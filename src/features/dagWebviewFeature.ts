@@ -25,12 +25,17 @@ class DagWebviewProvider implements vscode.WebviewViewProvider {
       localResourceRoots: [this._extensionUri],
     };
 
+    // TODO remove this event after implementing webview state caching
+    webviewView.onDidChangeVisibility(() => {
+      vscode.commands.executeCommand("hamilton.compileDAG")
+    })
+
     webviewView.webview.html = this._getWebviewContent(webviewView.webview, this._extensionUri);
 
     webviewView.webview.onDidReceiveMessage((message: IMessage) => {
       switch (message.command) {
         case DagCommand.save:
-          this.handleSave(message);
+          this.handleSave(message); 
           break
         
         case DagCommand.goToDefinition:
