@@ -12,6 +12,7 @@ function getCodeStyles(styles: string[]): CodeStyles {
     ?.split(";")
     .map((str) => {
       const [key, val] = str.trim().split(":");
+      console.log(key)
       return { key, val };
     })
     .filter((obj) => styles.includes(obj.key))
@@ -19,8 +20,11 @@ function getCodeStyles(styles: string[]): CodeStyles {
 }
 
 export const codeStyles = getCodeStyles([
+  "--vscode-panel-border",
+  "--vscode-textLink-activeForeground",
   "--vscode-editor-selectionHighlightBackground",
   "--vscode-editor-selectionBackground",
+  "--vscode-editorLineNumber-activeForeground",
   "--vscode-symbolIcon-classForeground",
 ]);
 
@@ -29,7 +33,7 @@ export const cyStylesheet: cytoscape.Stylesheet[] = [
     selector: "node",
     style: {
       label: "data(label)",
-      color: codeStyles["--vscode-editor-selectionHighlightBackground"],
+      color: codeStyles["--vscode-textLink-activeForeground"],
       "text-outline-color": "black",
       "text-outline-width": "1px",
       "text-valign": "center",
@@ -38,7 +42,7 @@ export const cyStylesheet: cytoscape.Stylesheet[] = [
       width: "40",
       height: "40",
       "border-width": "1px",
-      "border-color": "black",
+      "border-color": codeStyles["--vscode-panel-border"],
       "background-color": codeStyles["--vscode-editor-selectionBackground"],
       visibility: "visible",
     },
@@ -51,7 +55,7 @@ export const cyStylesheet: cytoscape.Stylesheet[] = [
       "target-arrow-shape": "triangle",
       "curve-style": "bezier",
       "background-color": "#C6C6C6",
-      width: 3,
+      width: 2,
       visibility: "visible",
     },
   },
@@ -86,7 +90,7 @@ export const cyStylesheet: cytoscape.Stylesheet[] = [
       width: "label",
       "text-valign": "top",
       "text-halign": "center",
-      "background-color": codeStyles["--vscode-symbolIcon-classForeground"],
+      "background-color": codeStyles["--vscode-editorLineNumber-activeForeground"],
       "background-opacity": 0.3,
     },
   },
