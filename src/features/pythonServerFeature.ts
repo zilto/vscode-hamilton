@@ -158,9 +158,9 @@ export class PythonWebSocketsFeatures implements vscode.Disposable {
   private server: SocketServer;
   private client?: SocketClient;
 
-  constructor(context: vscode.ExtensionContext, cacheProvider: CacheProvider, logger: vscode.LogOutputChannel) {
+  constructor(context: vscode.ExtensionContext, cacheProvider: CacheProvider) {
     this.moduleCache = cacheProvider;
-    this.logger = logger;
+    this.logger = vscode.window.createOutputChannel("Hamilton", { log: true });
 
     this.config = new SocketsConfiguration(context);
 
@@ -170,6 +170,14 @@ export class PythonWebSocketsFeatures implements vscode.Disposable {
     setTimeout(() => {
       this.client = new SocketClient(this.config, this.logger);
     }, 1000);
+    setTimeout(() => {
+      this.client?.sendMessage({command: "registerConnection", details: {identity: "vscode"}})
+    }, 2000)
+
+    
+    context.subscriptions.push(
+      vscode.commands.registerCommand("hamilton.logger.focus", () => this.logger.show())
+    )
 
     context.subscriptions.push(
       vscode.commands.registerCommand("hamilton.compileDAG", () => {

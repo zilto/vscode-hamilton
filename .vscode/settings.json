@@ -8,5 +8,5 @@
     "typescript.preferences.quoteStyle": "double",
     "editor.codeActionsOnSave": {
 		"source.fixAll.eslint": true
-	}
+    }
 }

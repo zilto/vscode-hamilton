@@ -6,23 +6,20 @@ import { DagWebviewFeature } from "./features/dagWebviewFeature";
 import { CacheProvider } from "./features/cacheFeature";
 import { DataframeWebviewFeature } from "./features/dataframeWebviewFeature";
 import { SupportLinksFeature } from "./features/supportLinksFeature";
+import { LSPClientFeature } from "./features/lspClientFeature";
 
 let extensionFeatures: any[];
 
 export function activate(context: vscode.ExtensionContext) {
-  const logger = vscode.window.createOutputChannel(EXTENSION_NAME, { log: true });
-  context.subscriptions.push(
-    vscode.commands.registerCommand("hamilton.logger.focus", () => logger.show())
-  )
-
   const moduleCache: CacheProvider = CacheProvider.getInstance(context, "moduleCache");
 
   extensionFeatures = [
-    new PythonWebSocketsFeatures(context, moduleCache, logger),
+    new PythonWebSocketsFeatures(context, moduleCache),
     new ModuleTreeviewFeature(context, moduleCache),
     new DagWebviewFeature(context),
     new DataframeWebviewFeature(context),
     new SupportLinksFeature(),
+    new LSPClientFeature(context)
   ];
 }
 
