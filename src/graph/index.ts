@@ -55,7 +55,7 @@ export function init() {
 
   expandApi = cy.expandCollapse({
     layoutBy: layout,
-    animationDuration: 250,
+    animationDuration: 150,
     fit: true,
   });
 }
@@ -66,20 +66,20 @@ function bindCytoscapeEvents(cy: cytoscape.Core) {
   cy.on("resize", () => cy.fit());
   cy.on("select", (event) => {
     // exit if clicking on module compound node
-    if (event.target.is(".module")){
+    if (event.target.is(".module")) {
       return;
     }
 
-    event.target.addClass("highlight")
+    event.target.addClass("highlight");
     event.target.predecessors().addClass("highlight");
     event.target.successors().addClass("highlight");
-    cy.elements().difference(".highlight").addClass("faded")
+    cy.elements().difference(".highlight").addClass("faded");
 
-    cy.$(".highlight").ancestors().removeClass("faded")
+    cy.$(".highlight").ancestors().removeClass("faded");
   });
   cy.on("unselect", () => {
-    cy.elements().removeClass("highlight")
-    cy.elements().removeClass("faded")
+    cy.elements().removeClass("highlight");
+    cy.elements().removeClass("faded");
   });
   cy.nodes().on("expandcollapse.beforecollapse", (event) => expandApi.collapse(event.target.children()));
   cy.nodes().on("expandcollapse.afterexpand", (event) => expandApi.expand(event.target.children()));

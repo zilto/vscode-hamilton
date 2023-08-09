@@ -25,8 +25,6 @@ class DataframeWebviewProvider implements vscode.WebviewViewProvider {
     };
 
     webviewView.webview.html = this._getWebviewContent(webviewView.webview, this._extensionUri);
-
-    webviewView.webview.onDidReceiveMessage((message: IMessage) => {}, undefined);
   }
 
   public postMessage(message: IMessage) {
@@ -70,7 +68,7 @@ export class DataframeWebviewFeature implements vscode.Disposable {
 
     context.subscriptions.push(
       vscode.window.registerWebviewViewProvider(DataframeWebviewProvider.viewId, this.dataframeWebviewProvider),
-      vscode.commands.registerCommand("hamilton.dataframe.update", (data) => {
+      vscode.commands.registerCommand("hamilton.dataframeWebview.update", (data) => {
         this.dataframeWebviewProvider.postMessage({ command: DataframeCommand.update, details: data });
       }),
     );

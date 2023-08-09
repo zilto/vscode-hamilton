@@ -10,9 +10,10 @@ The **DAG visualization** view shows the Hamilton function graph. The view consi
 - **Rotate DAG**: rotates display 90 degrees
 
 ## View features
-- **Click and grab background**: move around display
-- **Click and grab node**: move node
-- **Click node**: highlight upstream and downstream nodes
+- **Left-click and grab background**: move around display
+- **Left-click and grab node**: move node
+- **Left-click node**: highlight upstream and downstream nodes
+- **Right-click node**: Go-to definition
 - **Mouse wheel**: zoom on mouse location
 - **Double click**: resets zoom
 - Expand/collapse modules

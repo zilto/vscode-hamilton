@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { CacheProvider } from "./cacheFeature";
+import { getUri } from "../utils/getUri";
 
 class Item extends vscode.TreeItem {
   constructor(public resourceUri: vscode.Uri) {
@@ -158,6 +159,17 @@ export class ModuleTreeviewFeature implements vscode.Disposable {
         Promise.resolve(this.moduleCache.add(module.resourceUri)).then(() =>
           vscode.commands.executeCommand("hamilton.refreshModules"),
         );
+      }),
+
+      vscode.commands.registerCommand("hamilton.showDAG", () => {
+        const module_file_paths = this.moduleCache.values().map((uri) => uri.fsPath);
+        vscode.commands.executeCommand("lsp/showDAG", module_file_paths);
+      }),
+
+      vscode.commands.registerCommand("hamilton.showResults", () => {
+        const module_file_paths = this.moduleCache.values().map((uri) => uri.fsPath);
+        const config_path = vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, "./.hamilton");
+        vscode.commands.executeCommand("lsp/showResults", module_file_paths, config_path);
       }),
     );
   }

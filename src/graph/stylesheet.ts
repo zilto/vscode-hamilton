@@ -120,7 +120,7 @@ export const cyStylesheet: cytoscape.Stylesheet[] = [
   },
   {
     selector: "node.highlight",
-    style: {}
+    style: {},
   },
   {
     selector: ".faded",

@@ -1,12 +1,3 @@
-export enum MessageKind {
-  clientNotifiedServer,
-  serverNotifiedClient,
-  serverRequested,
-  clientRequested,
-  resultForClient,
-  responseForServer,
-}
-
 export enum DagCommand {
   build,
   update,
@@ -21,10 +12,10 @@ export enum DataframeCommand {
   update,
 }
 
-type SocketCommand = "compileDAG" | "executeDAG";
+type SocketCommand = "buildDAG" | "executeDAG";
 export const SocketCommand = {
-  get compileDAG(): SocketCommand {
-    return "compileDAG";
+  get buildDAG(): SocketCommand {
+    return "buildDAG";
   },
   get executeDAG(): SocketCommand {
     return "executeDAG";

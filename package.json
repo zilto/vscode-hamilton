@@ -7,7 +7,7 @@
   "author": {
     "name": "Thierry Jean"
   },
-  "version": "0.2.6",
+  "version": "0.2.7",
   "engines": {
     "vscode": "^1.77.0"
   },
@@ -50,14 +50,14 @@
     "commands": [
       {
         "category": "Hamilton",
-        "command": "hamilton.executeDAG",
-        "title": "Execute DAG",
+        "command": "hamilton.showResults",
+        "title": "Show Results",
         "icon": "$(run-all)"
       },
       {
         "category": "Hamilton",
-        "command": "hamilton.compileDAG",
-        "title": "Compile DAG",
+        "command": "hamilton.showDAG",
+        "title": "Show DAG",
         "icon": "$(play)"
       },
       {
@@ -80,25 +80,25 @@
       },
       {
         "category": "Hamilton",
-        "command": "hamilton.rotate",
+        "command": "hamilton.dagWebview.rotate",
         "title": "Rotate DAG",
         "icon": "$(debug-step-over)"
       },
       {
         "category": "Hamilton",
-        "command": "hamilton.save",
+        "command": "hamilton.dagWebview.save",
         "title": "Save DAG",
         "icon": "$(save)"
       },
       {
         "category": "Hamilton",
-        "command": "hamilton.expandAll",
+        "command": "hamilton.dagWebview.expandAll",
         "title": "Expand All",
         "icon": "$(expand-all)"
       },
       {
         "category": "Hamilton",
-        "command": "hamilton.collapseAll",
+        "command": "hamilton.dagWebview.collapseAll",
         "title": "Collapse All",
         "icon": "$(collapse-all)"
       },
@@ -160,12 +160,12 @@
     "menus": {
       "view/title": [
         {
-          "command": "hamilton.executeDAG",
+          "command": "hamilton.showResults",
           "when": "view == hamilton.modules_treeview",
           "group": "navigation@1"
         },
         {
-          "command": "hamilton.compileDAG",
+          "command": "hamilton.showDAG",
           "when": "view == hamilton.modules_treeview",
           "group": "navigation@2"
         },
@@ -175,32 +175,32 @@
           "group": "navigation@3"
         },
         {
-          "command": "hamilton.save",
+          "command": "hamilton.dagWebview.save",
           "when": "view == hamilton.DAG_webview",
           "group": "navigation@1"
         },
         {
-          "command": "hamilton.compileDAG",
+          "command": "hamilton.showDAG",
           "when": "view == hamilton.DAG_webview",
           "group": "navigation@2"
         },
         {
-          "command": "hamilton.expandAll",
+          "command": "hamilton.dagWebview.expandAll",
           "when": "view == hamilton.DAG_webview",
           "group": "navigation@3"
         },
         {
-          "command": "hamilton.collapseAll",
+          "command": "hamilton.dagWebview.collapseAll",
           "when": "view == hamilton.DAG_webview",
           "group": "navigation@4"
         },
         {
-          "command": "hamilton.rotate",
+          "command": "hamilton.dagWebview.rotate",
           "when": "view == hamilton.DAG_webview",
           "group": "navigation@5"
         },
         {
-          "command": "hamilton.executeDAG",
+          "command": "hamilton.showResults",
           "when": "view == hamilton.Dataframe_webview",
           "group": "navigation@1"
         }
@@ -311,7 +311,7 @@
     ]
   },
   "scripts": {
-    "compile": "cd lsp && NODE_ENV=production node ./esbuild.js && cd .. && NODE_ENV=production node ./esbuild.js",
+    "compile": "NODE_ENV=production node ./esbuild.js",
     "package": "NODE_ENV=production node ./esbuild.js",
     "watch": "node ./esbuild.js --watch",
     "pretty": "prettier --write \"src/**/*.ts\"",

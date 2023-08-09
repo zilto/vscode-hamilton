@@ -1,50 +1,40 @@
-// import * as net from "net";
-// import * as path from "path";
 import * as vscode from "vscode";
-import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from "vscode-languageclient/node";
-import { SocketsConfiguration } from "../configuration";
-
+import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient/node";
+import { Configuration } from "../configuration";
 
 export class LSPClientFeature implements vscode.Disposable {
   private client: LanguageClient;
 
-  constructor(context: vscode.ExtensionContext) {
-    // const serverModule = context.asAbsolutePath(path.join("lsp", "out", "server.js"));
-    // const debugOptions = { execArgv: ["--nolazy", "--inspect=6009"] };
-    // const serverOptions: ServerOptions = {
-    //   debug: {
-    //     module: serverModule,
-    //     options: debugOptions,
-    //     transport: TransportKind.ipc,
-    //   },
-    //   run: { module: serverModule, transport: TransportKind.ipc },
-    // };
-
-    const config = new SocketsConfiguration(context)
-
+  constructor(context: vscode.ExtensionContext, pythonPath: string) {
     const serverOptions: ServerOptions = {
-      command: config.pythonPath,
-      args: ["-m", "lspServer"],  // the entry point is /lspServer/__main__.py
-      options: { cwd: context.asAbsolutePath("") }
-    }
+      command: pythonPath,
+      args: ["-m", "lsp_server"], // the entry point is /lspServer/__main__.py
+      options: { cwd: context.asAbsolutePath("") },
+    };
 
+    const outputChannel = vscode.window.createOutputChannel("Hamilton LSP", { log: true });
     const clientOptions: LanguageClientOptions = {
       documentSelector: [
         { scheme: "file", language: "python" },
+        { scheme: "untitle", language: "python" },
       ],
-      synchronize: {
-        fileEvents: vscode.workspace.createFileSystemWatcher("**/.clientrc"),
-      },
-      outputChannel: vscode.window.createOutputChannel("Hamilton LSP", {log: true})
+      outputChannel: outputChannel,
+      traceOutputChannel: outputChannel,
     };
 
     this.client = new LanguageClient("hamilton-lsp", "Hamilton Language Server", serverOptions, clientOptions);
-
     this.client.start();
+    this.bindEventListener();
   }
 
-  private commandHandler(): void {
-    this.client.onNotification("$/test", (msg) => vscode.window.showInformationMessage(msg))
+  private bindEventListener() {
+    this.client.onNotification("lsp/showDAG", (json_graph) => {
+      vscode.commands.executeCommand("hamilton.dagWebview.update", json_graph);
+    });
+
+    this.client.onNotification("lsp/showResults", (results) => {
+      vscode.commands.executeCommand("hamilton.dataframeWebview.update");
+    });
   }
 
   public dispose(): any {
