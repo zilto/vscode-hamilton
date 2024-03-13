@@ -38,8 +38,8 @@ export const cyStylesheet: cytoscape.Stylesheet[] = [
       "text-valign": "center",
       "text-halign": "center",
       shape: "ellipse",
-      width: "40",
-      height: "40",
+      width: "40px",
+      height: "40px",
       "border-width": "1px",
       "border-color": codeStyles["--vscode-panel-border"],
       "background-color": codeStyles["--vscode-editor-selectionBackground"],
@@ -84,7 +84,7 @@ export const cyStylesheet: cytoscape.Stylesheet[] = [
   {
     selector: "node.module",
     style: {
-      label: (element) => "Module: " + element.data("label"),
+      label: (element) => element.data("label"),
       shape: "round-rectangle",
       width: "label",
       "text-valign": "top",
