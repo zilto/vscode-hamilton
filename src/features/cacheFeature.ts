@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import { EXTENSION_NAME } from "../constants";
 
 interface ICacheState {
   [key: string]: any;
@@ -11,7 +10,7 @@ export class CacheProvider {
   private cache: ICacheState;
 
   constructor(private context: vscode.ExtensionContext, cacheKey: string) {
-    this.cacheKey = `${EXTENSION_NAME}.${cacheKey}`;
+    this.cacheKey = `vscode-hamilton.${cacheKey}`;
     this.cache = this.context.globalState.get<ICacheState>(this.cacheKey, {});
   }
 
