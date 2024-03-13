@@ -5,3 +5,5 @@ node_modules
 *.vsix
 **/__pycache__/
 _deprecated/
+.vscode/
+*.tgz
