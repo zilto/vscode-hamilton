@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient/node";
-import { Configuration } from "../configuration";
 
 export class LSPClientFeature implements vscode.Disposable {
   private client: LanguageClient;
@@ -32,9 +31,6 @@ export class LSPClientFeature implements vscode.Disposable {
       vscode.commands.executeCommand("hamilton.dagWebview.update", json_graph);
     });
 
-    this.client.onNotification("lsp/showResults", (results) => {
-      vscode.commands.executeCommand("hamilton.dataframeWebview.update");
-    });
   }
 
   public dispose(): any {
