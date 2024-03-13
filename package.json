@@ -7,7 +7,7 @@
   "author": {
     "name": "Thierry Jean"
   },
-  "version": "0.2.7",
+  "version": "0.2.8",
   "engines": {
     "vscode": "^1.77.0"
   },
@@ -148,12 +148,6 @@
           "id": "hamilton.DAG_webview",
           "name": "DAG",
           "when": "true"
-        },
-        {
-          "type": "webview",
-          "id": "hamilton.Dataframe_webview",
-          "name": "DataFrame",
-          "when": "true"
         }
       ]
     },
@@ -198,11 +192,6 @@
           "command": "hamilton.dagWebview.rotate",
           "when": "view == hamilton.DAG_webview",
           "group": "navigation@5"
-        },
-        {
-          "command": "hamilton.showResults",
-          "when": "view == hamilton.Dataframe_webview",
-          "group": "navigation@1"
         }
       ],
       "view/item/context": [
@@ -218,23 +207,11 @@
         }
       ]
     },
-    "notebooks": [
-      {
-        "id": "hamilton-notebook",
-        "type": "hamilton-notebook",
-        "displayName": "Hamilton Notebook",
-        "selector": [
-          {
-            "filenamePattern": "*.hamilton.ipynb"
-          }
-        ]
-      }
-    ],
     "notebookRenderer": [
       {
         "id": "hamilton-notebook",
         "displayName": "Hamilton DAG Renderer",
-        "entrypoint": "./out/renderer.js",
+        "entrypoint": "./out/dagRenderer.js",
         "mimeTypes": [
           "x-application/hamilton-dag"
         ]
@@ -256,55 +233,83 @@
             "id": "extensionDependencies",
             "title": "Install VSCode Python extension",
             "description": "[Go to extension marketplace](command:workbench.extensions.action.installExtensions)",
-            "media": {"markdown": "resources/walkthrough/1_extensionDependencies.md"},
-            "completionEvents": ["extensionInstalled:ms-python.python"]
+            "media": {
+              "markdown": "resources/walkthrough/1_extensionDependencies.md"
+            },
+            "completionEvents": [
+              "extensionInstalled:ms-python.python"
+            ]
           },
           {
             "id": "pythonInterpreter",
             "title": "Select Python interpreter",
             "description": "[Select interpreter](command:python.setInterpreter)",
-            "media": {"markdown": "resources/walkthrough/2_pythonInterpreter.md"},
-            "completionEvents": ["onSettingChanged:python.pythonPath"]
+            "media": {
+              "markdown": "resources/walkthrough/2_pythonInterpreter.md"
+            },
+            "completionEvents": [
+              "onSettingChanged:python.pythonPath"
+            ]
           },
           {
             "id": "pythonDependencies",
             "title": "Install Python dependencies",
             "description": "[Open terminal](command:workbench.action.terminal.new)",
-            "media": {"markdown": "resources/walkthrough/3_pythonDependencies.md"}
+            "media": {
+              "markdown": "resources/walkthrough/3_pythonDependencies.md"
+            }
           },
           {
             "id": "visitTreeview",
             "title": "Files and modules",
             "description": "[Go to modules](command:hamilton.modules_treeview.focus)",
-            "media": {"markdown": "resources/walkthrough/4_visitTreeview.md"},
-            "completionEvents": ["onView:hamilton.modules_treeview"]
+            "media": {
+              "markdown": "resources/walkthrough/4_visitTreeview.md"
+            },
+            "completionEvents": [
+              "onView:hamilton.modules_treeview"
+            ]
           },
           {
             "id": "visitServer",
             "title": "Hamilton server",
             "description": "[Show server logger](command:hamilton.logger.focus)\n[Set debug level](command:workbench.action.setLogLevel)",
-            "media": {"markdown": "resources/walkthrough/5_visitServer.md"},
-            "completionEvents": ["onCommand:hamilton.logger.focus"]
+            "media": {
+              "markdown": "resources/walkthrough/5_visitServer.md"
+            },
+            "completionEvents": [
+              "onCommand:hamilton.logger.focus"
+            ]
           },
           {
             "id": "visitDagWebview",
             "title": "DAG visualization",
             "description": "[Go to DAG visualization](command:hamilton.DAG_webview.focus)",
-            "media": {"markdown": "resources/walkthrough/6_visitDagWebview.md"},
-            "completionEvents": ["onView:hamilton.Dag_webview"]
+            "media": {
+              "markdown": "resources/walkthrough/6_visitDagWebview.md"
+            },
+            "completionEvents": [
+              "onView:hamilton.Dag_webview"
+            ]
           },
           {
             "id": "visitDataframeWebview",
             "title": "Dataframe preview [WIP]",
             "description": "[Go to dataframe preview](command:hamilton.Dataframe_webview.focus)",
-            "media": {"markdown": "resources/walkthrough/7_visitDataframeWebview.md"},
-            "completionEvents": ["onView:hamilton.Dataframe_webview"]
+            "media": {
+              "markdown": "resources/walkthrough/7_visitDataframeWebview.md"
+            },
+            "completionEvents": [
+              "onView:hamilton.Dataframe_webview"
+            ]
           },
           {
             "id": "tips",
             "title": "Additional tips",
             "description": "",
-            "media": {"markdown": "resources/walkthrough/8_tips.md"}
+            "media": {
+              "markdown": "resources/walkthrough/8_tips.md"
+            }
           }
         ]
       }
@@ -312,12 +317,12 @@
   },
   "scripts": {
     "compile": "NODE_ENV=production node ./esbuild.js",
-    "package": "NODE_ENV=production node ./esbuild.js",
     "watch": "node ./esbuild.js --watch",
     "pretty": "prettier --write \"src/**/*.ts\"",
     "vscode:prepublish": ""
   },
   "devDependencies": {
+    "@githubocto/tailwind-vscode": "^1.0.5",
     "@types/chai": "4.3.4",
     "@types/cytoscape": "^3.19.9",
     "@types/mocha": "^10.0.1",

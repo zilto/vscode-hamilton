@@ -2,7 +2,6 @@ import * as vscode from "vscode";
 import { ModuleTreeviewFeature } from "./features/moduleTreeviewFeature";
 import { DagWebviewFeature } from "./features/dagWebviewFeature";
 import { CacheProvider } from "./features/cacheFeature";
-import { DataframeWebviewFeature } from "./features/dataframeWebviewFeature";
 import { SupportLinksFeature } from "./features/supportLinksFeature";
 import { LSPClientFeature } from "./features/lspClientFeature";
 
@@ -20,7 +19,6 @@ export async function activate(context: vscode.ExtensionContext) {
     new LSPClientFeature(context, pythonPath),
     new ModuleTreeviewFeature(context, moduleCache),
     new DagWebviewFeature(context),
-    new DataframeWebviewFeature(context),
     new SupportLinksFeature(),
   ];
 }

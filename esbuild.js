@@ -39,13 +39,6 @@ const dagWebviewConfig = {
   outfile: "./out/dagScript.js",
 };
 
-const dataframeWebviewConfig = {
-  ...baseConfig,
-  target: "es2020",
-  format: "esm",
-  entryPoints: ["./src/webview/dataframeScript.ts"],
-  outfile: "./out/dataframeScript.js",
-};
 
 const rendererConfig = {
   ...baseConfig,
@@ -60,27 +53,13 @@ const rendererConfig = {
   try {
     if (args.includes("--watch")) {
       console.log("[watch] build started");
-      await build({
-        ...extensionConfig,
-        ...watchConfig,
-      });
-      await build({
-        ...dagWebviewConfig,
-        ...watchConfig,
-      });
-      await build({
-        ...dataframeWebviewConfig,
-        ...watchConfig,
-      });
-      await build({
-        ...rendererConfig,
-        ...watchConfig,
-      });
+      await build({...extensionConfig, ...watchConfig,});
+      await build({...dagWebviewConfig, ...watchConfig,});
+      await build({...rendererConfig, ...watchConfig,});
       console.log("[watch] build finished");
     } else {
       await build(extensionConfig);
       await build(dagWebviewConfig);
-      await build(dataframeWebviewConfig);
       await build(rendererConfig);
       console.log("build complete");
     }
