@@ -50,12 +50,6 @@
     "commands": [
       {
         "category": "Hamilton",
-        "command": "hamilton.showResults",
-        "title": "Show Results",
-        "icon": "$(run-all)"
-      },
-      {
-        "category": "Hamilton",
         "command": "hamilton.showDAG",
         "title": "Show DAG",
         "icon": "$(play)"
@@ -154,19 +148,14 @@
     "menus": {
       "view/title": [
         {
-          "command": "hamilton.showResults",
+          "command": "hamilton.showDAG",
           "when": "view == hamilton.modules_treeview",
           "group": "navigation@1"
         },
         {
-          "command": "hamilton.showDAG",
-          "when": "view == hamilton.modules_treeview",
-          "group": "navigation@2"
-        },
-        {
           "command": "hamilton.refreshModules",
           "when": "view == hamilton.modules_treeview",
-          "group": "navigation@3"
+          "group": "navigation@2"
         },
         {
           "command": "hamilton.dagWebview.save",
