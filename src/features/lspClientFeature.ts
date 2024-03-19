@@ -1,17 +1,18 @@
 import * as vscode from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient/node";
 
+
 export class LSPClientFeature implements vscode.Disposable {
   private client: LanguageClient;
 
   constructor(context: vscode.ExtensionContext, pythonPath: string) {
     const serverOptions: ServerOptions = {
       command: pythonPath,
-      args: ["-m", "lsp_server"], // the entry point is /lspServer/__main__.py
+      args: ["-m", "lsp_server"],
       options: { cwd: context.asAbsolutePath("") },
     };
 
-    const outputChannel = vscode.window.createOutputChannel("Hamilton LSP", { log: true });
+    const outputChannel = vscode.window.createOutputChannel("Hamilton Language Server", { log: true });
     const clientOptions: LanguageClientOptions = {
       documentSelector: [
         { scheme: "file", language: "python" },
@@ -21,16 +22,26 @@ export class LSPClientFeature implements vscode.Disposable {
       traceOutputChannel: outputChannel,
     };
 
-    this.client = new LanguageClient("hamilton-lsp", "Hamilton Language Server", serverOptions, clientOptions);
+    this.client = new LanguageClient("hamilton-lsp", "Hamilton Language Client", serverOptions, clientOptions);
     this.client.start();
     this.bindEventListener();
+
+    context.subscriptions.push(
+      vscode.window.onDidChangeActiveTextEditor((editor: vscode.TextEditor | undefined) => {
+        if (editor && (editor.document.languageId === 'python' || editor.document.fileName.endsWith('.py'))) {
+          this.client.sendRequest(
+            "textDocument/didChange",
+            { textDocument: { uri: editor.document.uri.toString(), version: editor.document.version}, contentChanges: []}
+          );
+        }
+      })
+    )
   }
 
   private bindEventListener() {
-    this.client.onNotification("lsp/showDAG", (json_graph) => {
-      vscode.commands.executeCommand("hamilton.dagWebview.update", json_graph);
+    this.client.onNotification("lsp-view-response", (response) => {
+      vscode.commands.executeCommand("hamilton.dataflowWebview.update", response);
     });
-
   }
 
   public dispose(): any {

@@ -31,22 +31,15 @@ const watchConfig = {
   },
 };
 
-const dagWebviewConfig = {
+
+const dataflowWebviewConfig = {
   ...baseConfig,
   target: "es2020",
   format: "esm",
-  entryPoints: ["./src/webview/dagScript.ts"],
-  outfile: "./out/dagScript.js",
+  entryPoints: ["./src/webview/dataflowScript.ts"],
+  outfile: "./out/dataflowScript.js",
 };
 
-
-const rendererConfig = {
-  ...baseConfig,
-  target: "es2020",
-  format: "esm",
-  entryPoints: ["./src/renderer/dagRenderer.ts"],
-  outfile: "./out/dagRenderer.js",
-};
 
 (async () => {
   const args = process.argv.slice(2);
@@ -54,13 +47,11 @@ const rendererConfig = {
     if (args.includes("--watch")) {
       console.log("[watch] build started");
       await build({...extensionConfig, ...watchConfig,});
-      await build({...dagWebviewConfig, ...watchConfig,});
-      await build({...rendererConfig, ...watchConfig,});
+      await build({...dataflowWebviewConfig, ...watchConfig,});
       console.log("[watch] build finished");
     } else {
       await build(extensionConfig);
-      await build(dagWebviewConfig);
-      await build(rendererConfig);
+      await build(dataflowWebviewConfig);
       console.log("build complete");
     }
   } catch (err) {

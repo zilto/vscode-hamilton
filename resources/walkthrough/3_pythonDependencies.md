@@ -1,3 +1,5 @@
 # Install Python dependencies
 
-Install the ``sf-hamilton`` and ``websockets`` packages in your Python environment. For example ``pip install sf-hamilton websockets``.
+Install the ``sf-hamilton`` and the visualization dependencies in your Python environment
+
+``pip install sf-hamilton[visualization]``

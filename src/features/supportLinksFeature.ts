@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 class DummyProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
-  public static readonly viewId = "hamilton.supportLinks_treeview";
+  public static readonly viewId = "hamilton.linksTreeview";
 
   constructor() {}
 
@@ -18,7 +18,7 @@ export class SupportLinksFeature implements vscode.Disposable {
   private readonly treeview: vscode.TreeView<vscode.TreeItem>;
 
   constructor() {
-    this.treeview = vscode.window.createTreeView("hamilton.supportLinks_treeview", {
+    this.treeview = vscode.window.createTreeView("hamilton.linksTreeview", {
       treeDataProvider: new DummyProvider(),
     });
   }
